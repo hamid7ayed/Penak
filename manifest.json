@@ -2,7 +2,7 @@
   "name": "پینک - امتیازدهی",
   "short_name": "پینک",
   "description": "برنامه امتیازدهی بازی پینک",
-  "start_url": "/penak/",
+  "start_url": "/penak/index.html",
   "display": "standalone",
   "background_color": "#667eea",
   "theme_color": "#667eea",
