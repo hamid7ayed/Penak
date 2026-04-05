@@ -2,7 +2,7 @@
   "name": "پینک - امتیازدهی",
   "short_name": "پینک",
   "description": "برنامه امتیازدهی بازی پینک",
-  "start_url"https://github.com/hamid7ayed/Penak/index.html?homescreen=1,
+  ""start_url": "/penak/",
   "display": "standalone",
   "background_color": "#667eea",
   "theme_color": "#667eea",
