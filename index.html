@@ -622,13 +622,67 @@
             winner: null
         };
 
+        // ============================================
+        // CONFIG — load players & places from Sheet
+        // ============================================
+        let _configCache = null;
+        let _configFetchPromise = null;
+
+        function fetchConfig(forceRefresh = false) {
+            if (!forceRefresh && _configCache !== null) {
+                return Promise.resolve(_configCache);
+            }
+            if (_configFetchPromise) return _configFetchPromise;
+            _configFetchPromise = fetch(GOOGLE_SCRIPT_URL + '?type=config')
+                .then(r => r.json())
+                .then(data => {
+                    _configCache = data;
+                    _configFetchPromise = null;
+                    return data;
+                })
+                .catch(err => {
+                    _configFetchPromise = null;
+                    // Fallback to localStorage if network fails
+                    return {
+                        players: JSON.parse(localStorage.getItem('penak_players') || '[]'),
+                        locations: JSON.parse(localStorage.getItem('penak_places') || '[]')
+                    };
+                });
+            return _configFetchPromise;
+        }
+
+        function loadConfig() {
+            // Show whatever is in localStorage instantly while we fetch
+            const cachedPlayers = JSON.parse(localStorage.getItem('penak_players') || '[]');
+            const cachedPlaces  = JSON.parse(localStorage.getItem('penak_places')  || '[]');
+            if (cachedPlayers.length > 0) {
+                savedPlayers = cachedPlayers;
+                renderSavedPlayers();
+            }
+            if (cachedPlaces.length > 0) {
+                savedPlaces = cachedPlaces;
+                renderSavedPlaces();
+            }
+
+            // Then fetch fresh from Sheet
+            fetchConfig().then(data => {
+                if (data.players && data.players.length > 0) {
+                    savedPlayers = data.players;
+                    localStorage.setItem('penak_players', JSON.stringify(savedPlayers));
+                    renderSavedPlayers();
+                }
+                if (data.locations && data.locations.length > 0) {
+                    savedPlaces = data.locations;
+                    localStorage.setItem('penak_places', JSON.stringify(savedPlaces));
+                    renderSavedPlaces();
+                }
+            });
+        }
+
         // Load saved data on startup
         window.onload = function() {
-            loadPlayers();
-            loadPlaces();
-            renderSavedPlayers();
-            loadHistoryToExtractData(); // Load history to populate players and places
-            checkSyncStatus(); // Check if there's pending sync
+            loadConfig();
+            checkSyncStatus();
         };
 
         function checkSyncStatus() {
@@ -654,47 +708,42 @@
         }
 
         // Player Management Functions
-        function loadPlayers() {
-            const saved = localStorage.getItem('penak_players');
-            if(saved) {
-                savedPlayers = JSON.parse(saved);
-            }
-        }
-
         function savePlayers() {
             localStorage.setItem('penak_players', JSON.stringify(savedPlayers));
-        }
-
-        function loadPlaces() {
-            const saved = localStorage.getItem('penak_places');
-            if(saved) {
-                savedPlaces = JSON.parse(saved);
-            }
         }
 
         function savePlaces() {
             localStorage.setItem('penak_places', JSON.stringify(savedPlaces));
         }
 
+        function syncConfigToSheet() {
+            // Fire-and-forget: push updated players/places back to Config sheet
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({
+                    type: 'config',
+                    players: savedPlayers,
+                    locations: savedPlaces
+                })
+            }).catch(() => {}); // silent fail — localStorage is the fallback
+            // Invalidate config cache so next fetch gets fresh data
+            _configCache = null;
+        }
+
         function addPlace(place) {
             if(!place || place.trim() === '') return;
             place = place.trim();
             
-            // Remove if already exists (to move to front)
             const index = savedPlaces.indexOf(place);
-            if(index > -1) {
-                savedPlaces.splice(index, 1);
-            }
+            if(index > -1) savedPlaces.splice(index, 1);
             
-            // Add to front
             savedPlaces.unshift(place);
-            
-            // Keep only last 20
-            if(savedPlaces.length > 20) {
-                savedPlaces = savedPlaces.slice(0, 20);
-            }
+            if(savedPlaces.length > 20) savedPlaces = savedPlaces.slice(0, 20);
             
             savePlaces();
+            syncConfigToSheet();
             updatePlaceDatalist();
         }
 
@@ -756,51 +805,6 @@
                 savedPlacesDiv.classList.remove('hidden');
                 btn.textContent = '+ جدید';
             }
-        }
-
-        function loadHistoryToExtractData() {
-            fetchHistory()
-                .then(data => {
-                    if(!data || data.error || data.length === 0) return;
-                    
-                    // Extract all unique players and places from history
-                    const playersSet = new Set(savedPlayers);
-                    const placesSet = new Set(savedPlaces);
-                    
-                    data.forEach(match => {
-                        // Add place
-                        if(match.place) {
-                            placesSet.add(match.place);
-                        }
-                        
-                        // Add players from both teams
-                        if(match.teamA && match.teamA.players) {
-                            match.teamA.players.split(',').forEach(p => {
-                                const player = p.trim();
-                                if(player) playersSet.add(player);
-                            });
-                        }
-                        
-                        if(match.teamB && match.teamB.players) {
-                            match.teamB.players.split(',').forEach(p => {
-                                const player = p.trim();
-                                if(player) playersSet.add(player);
-                            });
-                        }
-                    });
-                    
-                    // Update saved players and places
-                    savedPlayers = Array.from(playersSet);
-                    savedPlaces = Array.from(placesSet);
-                    
-                    savePlayers();
-                    savePlaces();
-                    renderSavedPlayers();
-                    renderSavedPlaces();
-                })
-                .catch(err => {
-                    console.log('Could not load history data:', err);
-                });
         }
 
         function renderSavedPlayers() {
@@ -904,6 +908,7 @@
             
             savedPlayers.unshift(name);
             savePlayers();
+            syncConfigToSheet();
             renderSavedPlayers();
             closeBottomSheet();
             showNotification("✅ بازیکن با موفقیت اضافه شد", "success");
