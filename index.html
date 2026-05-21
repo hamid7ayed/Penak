@@ -528,7 +528,7 @@
                             تاریخچه
                         </h2>
                     </div>
-                    <button onclick="loadHistory()" 
+                    <button onclick="loadHistory(true)" 
                             class="touch-btn bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-xl font-bold text-sm">
                         🔄
                     </button>
@@ -571,6 +571,39 @@
     <script>
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwBAgnkl-zYbG9fRPsYUfBWjqMB-tMT8M0PNkg_IsycE9wKnqhv2-59vVazGB5vYfet/exec"; 
 
+        // ============================================
+        // CACHE SYSTEM — one fetch shared by all tabs
+        // ============================================
+        let _historyCache = null;       // in-memory cache (cleared on new game save)
+        let _historyFetchPromise = null; // prevents duplicate parallel fetches
+
+        function fetchHistory(forceRefresh = false) {
+            if (!forceRefresh && _historyCache !== null) {
+                return Promise.resolve(_historyCache);
+            }
+            // If a fetch is already in-flight, reuse it
+            if (_historyFetchPromise) {
+                return _historyFetchPromise;
+            }
+            _historyFetchPromise = fetch(GOOGLE_SCRIPT_URL)
+                .then(r => r.json())
+                .then(data => {
+                    _historyCache = Array.isArray(data) ? data : [];
+                    _historyFetchPromise = null;
+                    return _historyCache;
+                })
+                .catch(err => {
+                    _historyFetchPromise = null;
+                    throw err;
+                });
+            return _historyFetchPromise;
+        }
+
+        function invalidateHistoryCache() {
+            _historyCache = null;
+            _historyFetchPromise = null;
+        }
+
         // Player management
         let savedPlayers = [];
         let savedPlaces = [];
@@ -608,9 +641,8 @@
         function retrySyncNow() {
             showNotification("🔄 در حال تلاش مجدد...", "info");
             
-            // Try to fetch history to test connection
-            fetch(GOOGLE_SCRIPT_URL)
-                .then(response => response.json())
+            // Force a fresh fetch to test connection
+            fetchHistory(true)
                 .then(data => {
                     localStorage.removeItem('penak_pending_sync');
                     document.getElementById('sync-status').classList.add('hidden');
@@ -727,10 +759,9 @@
         }
 
         function loadHistoryToExtractData() {
-            fetch(GOOGLE_SCRIPT_URL)
-                .then(response => response.json())
+            fetchHistory()
                 .then(data => {
-                    if(data.error || data.length === 0) return;
+                    if(!data || data.error || data.length === 0) return;
                     
                     // Extract all unique players and places from history
                     const playersSet = new Set(savedPlayers);
@@ -1235,6 +1266,8 @@
             setTimeout(() => {
                 // Mark as synced (optimistic)
                 localStorage.removeItem('penak_pending_sync');
+                // Invalidate cache so History/Stats show the new game next open
+                invalidateHistoryCache();
                 showNotification("✅ بازی ذخیره شد!", "success");
                 
                 // Show home button
@@ -1287,12 +1320,11 @@
             document.getElementById('place').value = '';
         }
 
-        function loadHistory() {
+        function loadHistory(forceRefresh = false) {
             const list = document.getElementById('history-list');
             list.innerHTML = '<div class="text-center text-gray-500 py-6 text-sm">⏳ در حال بارگذاری...</div>';
 
-            fetch(GOOGLE_SCRIPT_URL)
-                .then(response => response.json())
+            fetchHistory(forceRefresh)
                 .then(data => {
                     list.innerHTML = ""; 
                     
@@ -1349,8 +1381,7 @@
             const content = document.getElementById('stats-content');
             content.innerHTML = '<div class="text-center text-gray-500 py-6 text-sm">⏳ محاسبه...</div>';
 
-            fetch(GOOGLE_SCRIPT_URL)
-                .then(response => response.json())
+            fetchHistory()
                 .then(data => {
                     if(data.error || data.length === 0) {
                         content.innerHTML = '<div class="text-center text-gray-400 py-10"><div class="text-5xl mb-3">📊</div><p class="text-sm">داده‌ای موجود نیست</p></div>';
