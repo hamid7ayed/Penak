@@ -864,17 +864,41 @@ async function doRegister() {
   }
 
   try {
+    // Step 1: Create account
     const data = await fbAuthReq('signUp', { email, password: pass, returnSecureToken: true });
-    // Update display name
+    // Step 2: Set display name
     await fbAuthReq('update', { idToken: data.idToken, displayName: name, returnSecureToken: true });
-    // Send verification email
+    // Step 3: Send verification email
     await fbAuthReq('sendOobCode', { requestType: 'VERIFY_EMAIL', idToken: data.idToken });
-    // Save phone to Firestore user profile
-    await firestoreSet(`users/${data.localId}`, { displayName: name, phone, email, uid: data.localId });
+    // Step 4: Save profile to Firestore (non-blocking — failure won't stop registration)
+    try {
+      await firestoreSet(`users/${data.localId}`, { displayName: name, phone, email, uid: data.localId });
+    } catch(fsErr) {
+      // Profile save failed but auth succeeded — phone will be empty on first login, user can update later
+      console.warn('Profile save failed:', fsErr.message);
+    }
+    // Step 5: Show verification notice
     document.getElementById('register-form').style.display = 'none';
     document.getElementById('verify-notice').style.display = 'block';
   } catch(e) {
-    errEl.textContent = e.message; errEl.style.display = 'block';
+    // Only show error for auth failures, not Firestore
+    const msg = e.message || '';
+    if (msg.includes('EMAIL_EXISTS')) {
+      errEl.textContent = currentLang === 'en'
+        ? 'This email is already registered. Please login instead.'
+        : 'این ایمیل قبلاً ثبت شده. لطفاً وارد شوید.';
+    } else if (msg.includes('WEAK_PASSWORD')) {
+      errEl.textContent = currentLang === 'en'
+        ? 'Password must be at least 6 characters.'
+        : 'رمز عبور حداقل 6 کاراکتر باشد.';
+    } else if (msg.includes('INVALID_EMAIL')) {
+      errEl.textContent = currentLang === 'en'
+        ? 'Please enter a valid email address.'
+        : 'لطفاً ایمیل معتبر وارد کنید.';
+    } else {
+      errEl.textContent = msg;
+    }
+    errEl.style.display = 'block';
   }
 }
 
