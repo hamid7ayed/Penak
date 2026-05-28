@@ -1024,17 +1024,18 @@ async function firestoreGet(path) {
   return r?.fields ? fromFS(r.fields) : null;
 }
 
-async function firestoreQuery(collection, orderBy = 'timestamp', limit = 200) {
+async function firestoreQuery(collection, orderBy = 'timestamp', limit = 500) {
   const body = {
     structuredQuery: {
       from: [{ collectionId: collection }],
-      orderBy: [{ field: { fieldPath: orderBy }, direction: 'ASCENDING' }],
       limit
     }
   };
   const r = await fsRequest('POST', ':runQuery', body);
   if (!Array.isArray(r)) return [];
-  return r.filter(d => d.document).map(d => ({ id: d.document.name.split('/').pop(), ...fromFS(d.document.fields) }));
+  const docs = r.filter(d => d.document).map(d => ({ id: d.document.name.split('/').pop(), ...fromFS(d.document.fields) }));
+  // Sort client-side by timestamp ascending (handles mixed timestamp formats)
+  return docs.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
 }
 
 // ════════════════════════════════════════════════════════════
