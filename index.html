@@ -32,6 +32,61 @@
       --border:     rgba(255,255,255,0.08);
     }
 
+    /* ── LIGHT MODE ── */
+    body.light {
+      --bg-deep:    #f0f2f8;
+      --bg-card:    #ffffff;
+      --bg-surface: #f5f7ff;
+      --accent:     #e94560;
+      --accent2:    #c9d8ff;
+      --gold:       #d4880a;
+      --green:      #00a37a;
+      --blue-team:  #1a6dff;
+      --red-team:   #e03a2f;
+      --text-main:  #1a1a2e;
+      --text-muted: #5a6378;
+      --border:     rgba(0,0,0,0.10);
+    }
+    body.light .input-dark {
+      background: #f0f2f8;
+      color: #1a1a2e;
+    }
+    body.light #auth-page {
+      background: radial-gradient(ellipse at top, #dce4ff 0%, #f0f2f8 60%);
+    }
+    body.light .app-header {
+      background: linear-gradient(180deg, #f0f2f8 0%, transparent 100%);
+    }
+    body.light .tab-bar {
+      background: #ffffff;
+    }
+    body.light .bottom-sheet {
+      background: #ffffff;
+    }
+    body.light #profile-modal {
+      background: rgba(0,0,0,0.5);
+    }
+    body.light #profile-modal > div {
+      background: #f0f2f8;
+    }
+    body.light #summary-modal {
+      background: rgba(0,0,0,0.6);
+    }
+    body.light .notif {
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    /* ── THEME TOGGLE BTN ── */
+    .theme-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 8px; padding: 4px 10px;
+      font-size: 15px; transition: all .2s;
+      touch-action: manipulation;
+    }
+    .theme-btn:active { transform: scale(0.92); }
+
     * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
     button, a, input, select, textarea { cursor: pointer; }
 
@@ -42,6 +97,15 @@
       min-height: 100vh;
       overscroll-behavior: none;
       -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Center layout on desktop, full-width on mobile */
+    #auth-page, #app {
+      width: 100%;
+      max-width: 480px;
     }
 
     /* ── SCROLLBAR ── */
@@ -416,7 +480,7 @@
 <!-- ═══════════════════════════════════════════════
      MAIN APP
 ═══════════════════════════════════════════════ -->
-<div id="app" style="display:none; max-width:480px; margin:0 auto; min-height:100vh; display:none; flex-direction:column;">
+<div id="app" style="display:none; width:100%; min-height:100vh; flex-direction:column;">
 
   <!-- Header -->
   <div class="app-header">
@@ -828,6 +892,24 @@ function toggleLang() {
   currentLang = currentLang === 'dr' ? 'en' : 'dr';
   localStorage.setItem('penak_lang', currentLang);
   applyLang();
+}
+
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  localStorage.setItem('penak_theme', isLight ? 'light' : 'dark');
+  document.getElementById('theme-btn').textContent = isLight ? '☀️' : '🌙';
+  // Update meta theme-color
+  document.querySelector('meta[name="theme-color"]').content = isLight ? '#f0f2f8' : '#1a1a2e';
+}
+
+function applyTheme() {
+  const saved = localStorage.getItem('penak_theme') || 'dark';
+  if (saved === 'light') {
+    document.body.classList.add('light');
+    const btn = document.getElementById('theme-btn');
+    if (btn) btn.textContent = '☀️';
+    document.querySelector('meta[name="theme-color"]').content = '#f0f2f8';
+  }
 }
 
 // ════════════════════════════════════════════════════════════
@@ -2045,6 +2127,7 @@ function showNotification(msg, type='info') {
 // ════════════════════════════════════════════════════════════
 window.onload = function() {
   applyLang();
+  applyTheme();
   // Try to restore session from localStorage
   const saved = localStorage.getItem('penak_user');
   if (saved) {
