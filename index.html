@@ -1,1837 +1,2062 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#667eea">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="پینک">
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- iOS Splash Screens -->
-    <link rel="apple-touch-icon" href="icon-192.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="icon-192.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
-    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
-    
-    <!-- Prevent iOS from interfering with buttons -->
-    <meta name="format-detection" content="telephone=no">
-    
-    <title>پينک - موبایل</title>
-    
-    <!-- Estedad Font -->
-    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/estedad-font@v0.4.1/dist/Estedad-FD.css" rel="stylesheet" type="text/css" />
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        * {
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-        
-        /* Fix for iOS button clicks */
-        button, a, input, select, textarea {
-            -webkit-user-select: text;
-            user-select: text;
-            cursor: pointer;
-        }
-        
-        body { 
-            font-family: 'Estedad FD', 'Vazirmatn', sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            overscroll-behavior: none;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        /* Prevent pull-to-refresh */
-        body {
-            overscroll-behavior-y: contain;
-        }
-        
-        /* Glass effect */
-        .glass {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-        
-        /* Touch-friendly buttons */
-        .touch-btn {
-            min-height: 48px;
-            min-width: 48px;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        /* Active state for touch */
-        .touch-btn:active {
-            transform: scale(0.95);
-            opacity: 0.8;
-        }
-        
-        /* Winner Animation */
-        .winner-glow { 
-            animation: victoryPulse 2s infinite;
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-            border: 3px solid #10b981;
-            box-shadow: 0 0 30px rgba(16, 185, 129, 0.4);
-        }
-        
-        @keyframes victoryPulse { 
-            0%, 100% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.4); } 
-            50% { box-shadow: 0 0 50px rgba(16, 185, 129, 0.8); } 
-        }
-        
-        /* Tab Transitions */
-        .tab-btn { 
-            border-bottom: 3px solid transparent; 
-            color: #6b7280; 
-            transition: all 0.2s;
-            position: relative;
-            touch-action: manipulation;
-        }
-        
-        .tab-btn.active { 
-            color: #2563eb; 
-            font-weight: bold; 
-            background: linear-gradient(to bottom, #eff6ff, #ffffff);
-        }
-        
-        .tab-btn.active::after {
-            content: '';
-            position: absolute;
-            bottom: -3px;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #2563eb, #7c3aed);
-        }
-        
-        /* Enhanced Input Focus */
-        input:focus, select:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-        
-        /* Score Animation */
-        .score-update {
-            animation: scoreChange 0.4s ease-out;
-        }
-        
-        @keyframes scoreChange {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.15); color: #fbbf24; }
-            100% { transform: scale(1); }
-        }
-        
-        /* Log Container */
-        .log-container { 
-            max-height: 120px; 
-            overflow-y: auto; 
-            scrollbar-width: thin;
-            scrollbar-color: rgba(59, 130, 246, 0.3) transparent;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        .log-item { 
-            border-bottom: 1px dashed #e5e7eb; 
-            padding: 6px 10px; 
-            font-size: 15px;
-            transition: background 0.2s;
-            animation: fadeInLog 0.3s ease-out;
-        }
-        
-        @keyframes fadeInLog {
-            from { opacity: 0; transform: translateX(10px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        /* Button Effects */
-        .btn-primary {
-            transition: all 0.2s;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .btn-primary:active {
-            transform: scale(0.98);
-        }
-        
-        /* Card Fade In */
-        .fade-in {
-            animation: fadeIn 0.4s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* Player Selection */
-        .player-option {
-            transition: all 0.2s;
-            cursor: pointer;
-            touch-action: manipulation;
-        }
-        
-        .player-option:active {
-            transform: scale(0.97);
-        }
-        
-        .player-option.selected {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white;
-            border-color: #1d4ed8;
-        }
-        
-        /* Number Input Styling */
-        input[type="number"] {
-            -moz-appearance: textfield;
-            font-size: 20px;
-        }
-        
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        
-        /* Quick Score Buttons */
-        .quick-score {
-            touch-action: manipulation;
-            transition: all 0.2s;
-        }
-        
-        .quick-score:active {
-            transform: scale(0.92);
-        }
-        
-        /* Slide up animation */
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        
-        .slide-up {
-            animation: slideUp 0.3s ease-out;
-        }
-        
-        /* Bottom Sheet */
-        .bottom-sheet {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            border-radius: 24px 24px 0 0;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
-            z-index: 100;
-            transform: translateY(100%);
-            transition: transform 0.3s ease-out;
-        }
-        
-        .bottom-sheet.open {
-            transform: translateY(0);
-        }
-        
-        /* Overlay */
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 99;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
-        
-        .overlay.show {
-            opacity: 1;
-            pointer-events: all;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="پینک">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>پينک</title>
 
-        /* Swipe indicator */
-        .swipe-indicator {
-            width: 40px;
-            height: 4px;
-            background: #d1d5db;
-            border-radius: 2px;
-            margin: 12px auto;
-        }
-    </style>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root {
+      --bg-deep:    #0f0f1a;
+      --bg-card:    #1a1a2e;
+      --bg-surface: #16213e;
+      --accent:     #e94560;
+      --accent2:    #0f3460;
+      --gold:       #f5a623;
+      --green:      #00d9a3;
+      --blue-team:  #4facfe;
+      --red-team:   #f77062;
+      --text-main:  #eaeaea;
+      --text-muted: #8892a4;
+      --border:     rgba(255,255,255,0.08);
+    }
+
+    * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+    button, a, input, select, textarea { cursor: pointer; }
+
+    body {
+      font-family: 'Vazirmatn', sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-main);
+      min-height: 100vh;
+      overscroll-behavior: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+    .card-surface {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    /* ── BUTTONS ── */
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #c0392b);
+      color: white; font-weight: 700; border-radius: 12px;
+      padding: 14px 20px; border: none; transition: all .2s;
+      touch-action: manipulation; min-height: 48px;
+    }
+    .btn-primary:active { transform: scale(0.97); opacity: .85; }
+
+    .btn-ghost {
+      background: transparent; color: var(--text-muted);
+      border: 1px solid var(--border); border-radius: 12px;
+      padding: 12px 20px; font-weight: 600; transition: all .2s;
+      touch-action: manipulation; min-height: 48px;
+    }
+    .btn-ghost:active { background: var(--border); }
+
+    .btn-team-a {
+      background: linear-gradient(135deg, #1a6dff, #00cfff);
+      color: white; font-weight: 700; border-radius: 10px;
+      padding: 10px; border: none; transition: all .2s;
+      touch-action: manipulation;
+    }
+    .btn-team-b {
+      background: linear-gradient(135deg, #f77062, #fe5196);
+      color: white; font-weight: 700; border-radius: 10px;
+      padding: 10px; border: none; transition: all .2s;
+      touch-action: manipulation;
+    }
+    .btn-team-a:active, .btn-team-b:active { transform: scale(0.95); }
+
+    /* ── INPUTS ── */
+    .input-dark {
+      background: var(--bg-deep);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      border-radius: 10px; padding: 12px 14px;
+      font-family: 'Vazirmatn', sans-serif;
+      font-size: 16px; width: 100%;
+      transition: border-color .2s;
+    }
+    .input-dark:focus { outline: none; border-color: var(--accent); }
+    .input-dark::placeholder { color: var(--text-muted); }
+
+    /* Force English digits */
+    input[type="number"], input[type="tel"], input[type="email"] {
+      font-variant-numeric: slashed-zero;
+    }
+
+    /* Hide number spinners */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type="number"] { -moz-appearance: textfield; }
+
+    /* ── TABS ── */
+    .tab-bar {
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      position: sticky; bottom: 0; z-index: 20;
+    }
+    .tab-btn {
+      color: var(--text-muted); transition: all .2s;
+      touch-action: manipulation; flex: 1;
+      padding: 10px 0; font-size: 11px; font-weight: 600;
+      border: none; background: transparent;
+    }
+    .tab-btn.active { color: var(--accent); }
+    .tab-btn.active .tab-icon { transform: translateY(-2px); }
+    .tab-icon { font-size: 22px; display: block; transition: transform .2s; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes scoreFlash {
+      0%,100% { color: inherit; }
+      50% { color: var(--gold); transform: scale(1.2); }
+    }
+    @keyframes pulse-glow {
+      0%,100% { box-shadow: 0 0 20px rgba(0,217,163,.3); }
+      50%      { box-shadow: 0 0 40px rgba(0,217,163,.7); }
+    }
+    @keyframes slideDown {
+      from { transform: translate(-50%, -80px); opacity: 0; }
+      to   { transform: translate(-50%, 0); opacity: 1; }
+    }
+    @keyframes slideUp2 {
+      from { transform: translate(-50%, 0); opacity: 1; }
+      to   { transform: translate(-50%, -80px); opacity: 0; }
+    }
+    @keyframes sheetUp {
+      from { transform: translateY(100%); }
+      to   { transform: translateY(0); }
+    }
+
+    .fade-up { animation: fadeUp .35s ease-out both; }
+    .score-flash { animation: scoreFlash .4s ease-out; }
+
+    .winner-glow {
+      animation: pulse-glow 2s infinite;
+      border-color: var(--green) !important;
+    }
+
+    /* ── BOTTOM SHEET ── */
+    .bottom-sheet {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--bg-card);
+      border-radius: 24px 24px 0 0;
+      border-top: 1px solid var(--border);
+      z-index: 200;
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+      max-height: 85vh; overflow-y: auto;
+    }
+    .bottom-sheet.open { transform: translateY(0); }
+
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.6);
+      z-index: 199; opacity: 0;
+      pointer-events: none; transition: opacity .3s;
+    }
+    .overlay.show { opacity: 1; pointer-events: all; }
+
+    .drag-handle {
+      width: 40px; height: 4px;
+      background: var(--border);
+      border-radius: 2px; margin: 12px auto 4px;
+    }
+
+    /* ── PLAYER CHIP ── */
+    .player-chip {
+      padding: 8px 14px; border-radius: 20px;
+      border: 1.5px solid var(--border);
+      font-size: 13px; font-weight: 600;
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      transition: all .2s; touch-action: manipulation;
+      cursor: pointer; display: inline-block;
+    }
+    .player-chip.team-a {
+      border-color: var(--blue-team);
+      background: rgba(79,172,254,.15);
+      color: var(--blue-team);
+    }
+    .player-chip.team-b {
+      border-color: var(--red-team);
+      background: rgba(247,112,98,.15);
+      color: var(--red-team);
+    }
+    .player-chip:active { transform: scale(0.95); }
+
+    /* ── SCORE INPUT WITH +/- ── */
+    .score-input-wrap {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .sign-toggle {
+      width: 42px; height: 42px; border-radius: 10px;
+      font-size: 20px; font-weight: 900;
+      border: 1.5px solid var(--border);
+      background: var(--bg-surface);
+      color: var(--text-main);
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s; touch-action: manipulation; flex-shrink: 0;
+    }
+    .sign-toggle.negative {
+      border-color: var(--accent);
+      background: rgba(233,69,96,.15);
+      color: var(--accent);
+    }
+    .sign-toggle:active { transform: scale(0.92); }
+
+    /* ── LOG ITEMS ── */
+    .log-item {
+      padding: 4px 8px; font-size: 13px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+    .log-item:last-child { border-bottom: none; }
+
+    /* ── BADGE ── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 8px; border-radius: 20px; font-size: 11px;
+      font-weight: 700; white-space: nowrap;
+    }
+
+    /* ── FORM DOTS ── */
+    .form-dot {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 6px;
+      font-size: 11px; font-weight: 700;
+    }
+    .form-dot.w { background: rgba(0,217,163,.2); color: var(--green); }
+    .form-dot.l { background: rgba(233,69,96,.2); color: var(--accent); }
+
+    /* ── STAT CARD ── */
+    .stat-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px;
+      text-align: center;
+    }
+    .stat-num { font-size: 24px; font-weight: 900; }
+    .stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    /* ── HEADER ── */
+    .app-header {
+      background: linear-gradient(180deg, #0f0f1a 0%, transparent 100%);
+      position: sticky; top: 0; z-index: 10;
+      padding: 16px 16px 8px;
+    }
+
+    /* ── AUTH PAGE ── */
+    #auth-page {
+      min-height: 100vh;
+      background: radial-gradient(ellipse at top, #1a0a2e 0%, var(--bg-deep) 60%);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 24px;
+    }
+
+    /* ── PROFILE MODAL ── */
+    #profile-modal {
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(0,0,0,.8);
+      overflow-y: auto;
+    }
+
+    /* ── LANG TOGGLE ── */
+    .lang-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 8px; padding: 4px 10px;
+      font-size: 12px; font-weight: 700;
+      transition: all .2s; touch-action: manipulation;
+    }
+    .lang-btn:active { background: var(--border); }
+
+    /* status bar target shift colors */
+    .status-normal { background: rgba(245,166,35,.1); color: var(--gold); border: 1px solid rgba(245,166,35,.3); }
+    .status-306    { background: rgba(147,112,219,.1); color: #b39ddb; border: 1px solid rgba(147,112,219,.3); }
+    .status-408    { background: rgba(233,69,96,.1); color: var(--accent); border: 1px solid rgba(233,69,96,.3); }
+    .status-win    { background: rgba(0,217,163,.1); color: var(--green); border: 1px solid rgba(0,217,163,.3); }
+
+    /* quick score btn */
+    .qs-btn {
+      border-radius: 8px; font-size: 12px; font-weight: 700;
+      padding: 8px 4px; border: none; transition: all .2s;
+      touch-action: manipulation;
+    }
+    .qs-btn:active { transform: scale(0.9); }
+    .qs-a { background: rgba(79,172,254,.15); color: var(--blue-team); }
+    .qs-b { background: rgba(247,112,98,.15); color: var(--red-team); }
+
+    /* notification */
+    .notif {
+      position: fixed; top: 16px; left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 20px; border-radius: 12px;
+      font-size: 14px; font-weight: 700;
+      z-index: 1000; white-space: nowrap;
+      animation: slideDown .3s ease-out;
+    }
+
+    /* selected place */
+    .place-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: var(--bg-surface);
+      font-size: 13px; font-weight: 600;
+      color: var(--text-muted); transition: all .2s;
+      touch-action: manipulation; cursor: pointer;
+    }
+    .place-chip.selected {
+      border-color: var(--accent);
+      background: rgba(233,69,96,.15);
+      color: var(--accent);
+    }
+    .place-chip:active { transform: scale(0.95); }
+
+    /* record-by bar */
+    .record-bar {
+      background: rgba(245,166,35,.08);
+      border: 1px solid rgba(245,166,35,.2);
+      border-radius: 8px; padding: 6px 12px;
+      font-size: 12px; color: var(--gold);
+    }
+  </style>
 </head>
-<body class="p-0">
+<body>
 
-    <!-- Main Container -->
-    <div class="max-w-md mx-auto min-h-screen flex flex-col">
-        
-        <!-- App Header -->
-        <div class="text-center py-6 px-4">
-            <h1 class="text-4xl font-bold text-white mb-1" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.2)">🃏 پينک </h1>
-            <p class="text-white text-sm opacity-90">امتیازدهی آسان</p>
-            
-            <!-- Sync Status -->
-            <div id="sync-status" class="mt-2 hidden">
-                <button onclick="retrySyncNow()" class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-3 py-1 rounded-full touch-btn">
-                    ⏳ در انتظار همگام‌سازی - کلیک برای تلاش مجدد
-                </button>
-            </div>
+<!-- ═══════════════════════════════════════════════
+     AUTH PAGE
+═══════════════════════════════════════════════ -->
+<div id="auth-page">
+  <div style="text-align:center; margin-bottom:32px;">
+    <div style="font-size:56px; margin-bottom:8px;">🃏</div>
+    <h1 style="font-size:36px; font-weight:900; background:linear-gradient(135deg,#e94560,#f5a623); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin:0;">پينک</h1>
+    <p style="color:var(--text-muted); font-size:13px; margin-top:4px;" id="auth-subtitle">ورود / ثبت‌نام</p>
+  </div>
+
+  <!-- Login Form -->
+  <div id="login-form" style="width:100%; max-width:360px;">
+    <div style="margin-bottom:14px;">
+      <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:6px;" data-i18n="email">ایمیل</label>
+      <input type="email" id="login-email" class="input-dark" placeholder="example@email.com" autocomplete="email" inputmode="email">
+    </div>
+    <div style="margin-bottom:20px;">
+      <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:6px;" data-i18n="password">رمز عبور</label>
+      <input type="password" id="login-pass" class="input-dark" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button onclick="doLogin()" class="btn-primary" style="width:100%; margin-bottom:12px;" data-i18n="login">ورود</button>
+    <button onclick="showRegister()" class="btn-ghost" style="width:100%;" data-i18n="goRegister">حساب ندارید؟ ثبت‌نام کنید</button>
+    <div id="login-err" style="color:var(--accent); font-size:12px; text-align:center; margin-top:10px; display:none;"></div>
+  </div>
+
+  <!-- Register Form -->
+  <div id="register-form" style="width:100%; max-width:360px; display:none;">
+    <div style="margin-bottom:12px;">
+      <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:6px;" data-i18n="displayName">نام نمایشی</label>
+      <input type="text" id="reg-name" class="input-dark" placeholder="شریف" autocomplete="name">
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:6px;" data-i18n="phone">شماره موبایل</label>
+      <input type="tel" id="reg-phone" class="input-dark" placeholder="+966XXXXXXXXX" inputmode="tel" pattern="[+0-9]*">
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:6px;" data-i18n="email">ایمیل</label>
+      <input type="email" id="reg-email" class="input-dark" placeholder="example@email.com" inputmode="email">
+    </div>
+    <div style="margin-bottom:20px;">
+      <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:6px;" data-i18n="password">رمز عبور</label>
+      <input type="password" id="reg-pass" class="input-dark" placeholder="حداقل 6 کاراکتر" autocomplete="new-password">
+    </div>
+    <button onclick="doRegister()" class="btn-primary" style="width:100%; margin-bottom:12px;" data-i18n="register">ثبت‌نام</button>
+    <button onclick="showLogin()" class="btn-ghost" style="width:100%;" data-i18n="goLogin">قبلاً ثبت‌نام کرده‌اید؟ ورود</button>
+    <div id="reg-err" style="color:var(--accent); font-size:12px; text-align:center; margin-top:10px; display:none;"></div>
+  </div>
+
+  <!-- Verification Notice -->
+  <div id="verify-notice" style="width:100%; max-width:360px; display:none; text-align:center;">
+    <div style="font-size:48px; margin-bottom:16px;">📧</div>
+    <h3 style="font-weight:700; margin-bottom:8px;" data-i18n="verifyTitle">ایمیل خود را تأیید کنید</h3>
+    <p style="color:var(--text-muted); font-size:13px; margin-bottom:20px;" data-i18n="verifyMsg">لینک تأیید به ایمیل شما ارسال شد. پس از تأیید، ورود کنید.</p>
+    <button onclick="showLogin()" class="btn-primary" style="width:100%;" data-i18n="goLoginBtn">برو به ورود</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     MAIN APP
+═══════════════════════════════════════════════ -->
+<div id="app" style="display:none; max-width:480px; margin:0 auto; min-height:100vh; display:none; flex-direction:column;">
+
+  <!-- Header -->
+  <div class="app-header">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:24px;">🃏</span>
+        <span style="font-size:20px; font-weight:900; color:var(--text-main);">پينک</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button class="lang-btn" onclick="toggleLang()" id="lang-btn">EN</button>
+        <button onclick="showUserMenu()" style="background:var(--bg-surface); border:1px solid var(--border); border-radius:20px; padding:6px 12px; display:flex; align-items:center; gap:6px; color:var(--text-muted); font-size:12px; font-weight:600;">
+          <span>👤</span>
+          <span id="header-username" style="max-width:80px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+        </button>
+      </div>
+    </div>
+    <!-- Sync status -->
+    <div id="sync-status" style="display:none; margin-top:8px;">
+      <button onclick="retrySyncNow()" style="background:rgba(245,166,35,.15); border:1px solid rgba(245,166,35,.3); color:var(--gold); border-radius:8px; padding:5px 12px; font-size:12px; font-weight:600; width:100%;" data-i18n="syncPending">⏳ در انتظار همگام‌سازی - کلیک برای تلاش مجدد</button>
+    </div>
+  </div>
+
+  <!-- Tab Views -->
+  <div style="flex:1; overflow:hidden; display:flex; flex-direction:column;">
+
+    <!-- ── TAB: GAME ── -->
+    <div id="view-game" style="flex:1; overflow-y:auto; display:flex; flex-direction:column;">
+
+      <!-- SETUP PANEL -->
+      <div id="setup-panel" style="padding:16px; padding-bottom:80px;">
+
+        <!-- Recorded by bar -->
+        <div class="record-bar" style="margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+          <span>✍️</span>
+          <span style="font-size:12px;" data-i18n="recordedBy">ثبت توسط:</span>
+          <span id="recorder-name" style="font-weight:700; font-size:12px;"></span>
+          <span style="color:var(--text-muted); font-size:11px;" id="recorder-phone"></span>
         </div>
-        
-        <div class="glass flex-1 rounded-t-3xl shadow-2xl overflow-hidden flex flex-col">
-            
-            <!-- NAVIGATION BAR -->
-            <div class="flex border-b bg-gradient-to-r from-gray-50 to-white sticky top-0 z-10">
-                <button onclick="switchTab('game')" id="tab-game" class="tab-btn active flex-1 py-4 text-center touch-btn">
-                    <div class="text-2xl mb-1">📝</div>
-                    <div class="text-xs">بازی</div>
-                </button>
-                <button onclick="switchTab('stats')" id="tab-stats" class="tab-btn flex-1 py-4 text-center touch-btn">
-                    <div class="text-2xl mb-1">📊</div>
-                    <div class="text-xs">آمار</div>
-                </button>
-                <button onclick="switchTab('history')" id="tab-history" class="tab-btn flex-1 py-4 text-center touch-btn">
-                    <div class="text-2xl mb-1">📜</div>
-                    <div class="text-xs">تاریخچه</div>
-                </button>
-            </div>
 
-            <!-- TAB: NEW GAME -->
-            <div id="view-game" class="flex-1 overflow-y-auto">
-                <!-- SETUP PANEL -->
-                <div id="setup-panel" class="p-4">
-                    <div class="text-center mb-4">
-                        <h2 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-1">
-                            بازی جدید
-                        </h2>
-                        <p class="text-gray-500 text-xs">انتخاب بازیکنان</p>
-                    </div>
-                    
-                    <!-- Location -->
-                    <div class="mb-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <label class="text-gray-700 text-sm font-bold flex items-center gap-2">
-                                📍 مکان بازی
-                            </label>
-                            <button onclick="togglePlaceInput()" id="add-place-btn" class="text-blue-600 text-xs font-bold touch-btn px-3 py-1 rounded-lg bg-blue-50">
-                                + جدید
-                            </button>
-                        </div>
-                        
-                        <!-- Saved Places Grid -->
-                        <div id="saved-places" class="grid grid-cols-2 gap-2 mb-2">
-                            <!-- Will be populated -->
-                        </div>
-                        
-                        <!-- Custom Place Input (Hidden by default) -->
-                        <div id="custom-place-container" class="hidden">
-                            <input type="text" id="place" placeholder="نام مکان جدید..." 
-                                   class="w-full p-3 border-2 border-gray-200 rounded-xl shadow-sm text-base">
-                        </div>
-                        
-                        <!-- Selected Place Display -->
-                        <div id="selected-place-display" class="hidden mt-2 p-3 bg-blue-50 rounded-xl border-2 border-blue-200 flex justify-between items-center">
-                            <div class="flex items-center gap-2">
-                                <span>📍</span>
-                                <span id="selected-place-text" class="font-bold text-blue-800"></span>
-                            </div>
-                            <button onclick="clearPlaceSelection()" class="text-red-500 text-sm font-bold touch-btn">✕</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Player Selection -->
-                    <div class="mb-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <label class="text-gray-700 text-sm font-bold flex items-center gap-2">
-                                👥 بازیکنان ثبت شده
-                            </label>
-                            <button onclick="openAddPlayer()" class="text-blue-600 text-xs font-bold touch-btn px-3 py-1 rounded-lg bg-blue-50">
-                                + جدید
-                            </button>
-                        </div>
-                        <div id="saved-players" class="grid grid-cols-2 gap-2 mb-3">
-                            <!-- Will be populated -->
-                        </div>
-                    </div>
-                    
-                    <!-- Selected Players for Teams -->
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                        <!-- Team A -->
-                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
-                            <div class="flex items-center gap-2 mb-3">
-                                <span class="text-xl">🔵</span>
-                                <span class="text-blue-900 font-bold text-sm">تیم A</span>
-                            </div>
-                            
-                            <div id="team-a-players" class="space-y-2 min-h-[80px]">
-                                <div class="text-gray-400 text-xs text-center py-4">بازیکنان را انتخاب کنید</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Team B -->
-                        <div class="bg-gradient-to-br from-red-50 to-red-100 p-4 rounded-xl border-2 border-red-200">
-                            <div class="flex items-center gap-2 mb-3">
-                                <span class="text-xl">🔴</span>
-                                <span class="text-red-900 font-bold text-sm">تیم B</span>
-                            </div>
-                            
-                            <div id="team-b-players" class="space-y-2 min-h-[80px]">
-                                <div class="text-gray-400 text-xs text-center py-4">بازیکنان را انتخاب کنید</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button onclick="startGame()" 
-                            class="btn-primary touch-btn w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-4 rounded-xl shadow-lg text-lg">
-                        🎮 شروع بازی
-                    </button>
-                </div>
-
-                <!-- GAME PANEL (Hidden) -->
-                <div id="game-panel" class="hidden h-full flex flex-col">
-                    <!-- Game Info Bar -->
-                    <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-3 text-xs text-gray-600 border-b flex justify-between items-center sticky top-0">
-                        <span id="display-date"></span>
-                        <span id="display-place"></span>
-                    </div>
-
-                    <!-- Status Bar -->
-                    <div id="status-bar" class="bg-gradient-to-r from-yellow-100 to-yellow-200 text-center py-3 text-yellow-900 font-bold border-b">
-                        🎯 هدف: 204
-                    </div>
-
-                    <!-- Game Board -->
-                    <div class="flex-1 overflow-y-auto">
-                        <div class="grid grid-cols-2 gap-0">
-                            <!-- Team A -->
-                            <div class="p-4 bg-gradient-to-b from-blue-50 to-white flex flex-col border-l border-gray-200" id="card-a">
-                                <div class="text-center mb-3">
-                                    <div class="text-xl mb-1">🔵</div>
-                                    <h2 id="disp-nameA" class="text-sm font-bold text-blue-800">تیم A</h2>
-                                </div>
-                                <div id="scoreA" class="text-5xl font-bold text-blue-600 text-center my-3">0</div>
-                                
-                                <!-- Quick Score Buttons -->
-                                <div class="grid grid-cols-3 gap-1 mb-3">
-                                    <button onclick="quickScore('A', 52)" class="quick-score touch-btn bg-blue-100 text-blue-700 py-2 rounded-lg text-xs font-bold">+52</button>
-                                    <button onclick="quickScore('A', 20)" class="quick-score touch-btn bg-blue-200 text-blue-800 py-2 rounded-lg text-xs font-bold">+20</button>
-                                    <button onclick="quickScore('A', 10)" class="quick-score touch-btn bg-blue-300 text-blue-900 py-2 rounded-lg text-xs font-bold">+10</button>
-                                </div>
-                                
-                                <input type="number" id="addA" placeholder="امتیاز" 
-                                       class="w-full p-3 border-2 border-blue-300 rounded-xl mb-2 text-center font-bold">
-                                <div class="grid grid-cols-2 gap-2 mb-3">
-                                    <button onclick="addScore('A')" 
-                                            class="touch-btn bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 py-3 rounded-xl font-bold text-sm">
-                                        ✓
-                                    </button>
-                                    <button onclick="undoScore('A')" 
-                                            class="touch-btn bg-gradient-to-r from-orange-400 to-orange-500 text-white px-3 py-3 rounded-xl font-bold text-sm">
-                                        ↩
-                                    </button>
-                                </div>
-                                
-                                <div class="bg-white p-3 rounded-xl border border-blue-100 shadow-sm">
-                                    <div class="text-xs text-gray-400 font-bold mb-2">📋 دست‌ها</div>
-                                    <div id="log-a" class="log-container text-sm text-blue-800 text-right"></div>
-                                </div>
-                            </div>
-
-                            <!-- Team B -->
-                            <div class="p-4 bg-gradient-to-b from-red-50 to-white flex flex-col border-r border-gray-200" id="card-b">
-                                <div class="text-center mb-3">
-                                    <div class="text-xl mb-1">🔴</div>
-                                    <h2 id="disp-nameB" class="text-sm font-bold text-red-800">تیم B</h2>
-                                </div>
-                                <div id="scoreB" class="text-5xl font-bold text-red-600 text-center my-3">0</div>
-                                
-                                <!-- Quick Score Buttons -->
-                                <div class="grid grid-cols-3 gap-1 mb-3">
-                                    <button onclick="quickScore('B', 52)" class="quick-score touch-btn bg-red-100 text-red-700 py-2 rounded-lg text-xs font-bold">+52</button>
-                                    <button onclick="quickScore('B', 20)" class="quick-score touch-btn bg-red-200 text-red-800 py-2 rounded-lg text-xs font-bold">+20</button>
-                                    <button onclick="quickScore('B', 10)" class="quick-score touch-btn bg-red-300 text-red-900 py-2 rounded-lg text-xs font-bold">+10</button>
-                                </div>
-                                
-                                <input type="number" id="addB" placeholder="امتیاز" 
-                                       class="w-full p-3 border-2 border-red-300 rounded-xl mb-2 text-center font-bold">
-                                <div class="grid grid-cols-2 gap-2 mb-3">
-                                    <button onclick="addScore('B')" 
-                                            class="touch-btn bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-3 rounded-xl font-bold text-sm">
-                                        ✓
-                                    </button>
-                                    <button onclick="undoScore('B')" 
-                                            class="touch-btn bg-gradient-to-r from-orange-400 to-orange-500 text-white px-3 py-3 rounded-xl font-bold text-sm">
-                                        ↩
-                                    </button>
-                                </div>
-                                
-                                <div class="bg-white p-3 rounded-xl border border-red-100 shadow-sm">
-                                    <div class="text-xs text-gray-400 font-bold mb-2">📋 دست‌ها</div>
-                                    <div id="log-b" class="log-container text-sm text-red-800 text-right"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Game Controls -->
-                    <div class="p-4 bg-gradient-to-r from-gray-50 to-white border-t sticky bottom-0">
-                        <div class="flex gap-2">
-                            <button onclick="resetGame()" 
-                                    class="touch-btn flex-1 text-gray-600 font-bold py-3 rounded-xl border-2 border-gray-300">
-                                🔄 لغو
-                            </button>
-                            <button id="finish-btn" onclick="finishGame()" 
-                                    class="touch-btn flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-3 rounded-xl shadow-lg hidden">
-                                💾 ذخیره
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB: STATISTICS -->
-            <div id="view-stats" class="hidden flex-1 overflow-y-auto bg-gradient-to-b from-gray-50 to-white p-4">
-                <div class="text-center mb-4">
-                    <h2 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-1">
-                        آمار بازیکنان
-                    </h2>
-                    <p class="text-gray-500 text-xs">عملکرد و رکوردها</p>
-                </div>
-                
-                <div id="stats-content" class="space-y-4 pb-20">
-                    <div class="text-center text-gray-400 py-10">
-                        <div class="text-5xl mb-3">📊</div>
-                        <button onclick="calculateStats()" 
-                                class="touch-btn bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-bold">
-                            محاسبه آمار
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB: HISTORY -->
-            <div id="view-history" class="hidden flex-1 overflow-y-auto bg-gradient-to-b from-gray-50 to-white p-4">
-                <div class="flex justify-between items-center mb-4 sticky top-0 bg-white py-2 z-10">
-                    <div>
-                        <h2 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                            تاریخچه
-                        </h2>
-                    </div>
-                    <button onclick="loadHistory(true)" 
-                            class="touch-btn bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-xl font-bold text-sm">
-                        🔄
-                    </button>
-                </div>
-                
-                <div id="history-list" class="space-y-3 pb-20">
-                    <div class="text-center text-gray-400 py-10">
-                        <div class="text-5xl mb-3">📜</div>
-                        <p class="text-sm">کلیک کنید تا بارگذاری شود</p>
-                    </div>
-                </div>
-            </div>
-
+        <div style="text-align:center; margin-bottom:20px;">
+          <h2 style="font-size:22px; font-weight:900; margin:0 0 4px;" data-i18n="newGame">بازی جدید</h2>
+          <p style="color:var(--text-muted); font-size:12px; margin:0;" data-i18n="selectPlayers">انتخاب بازیکنان</p>
         </div>
+
+        <!-- Location -->
+        <div style="margin-bottom:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <label style="font-size:13px; font-weight:700;" data-i18n="gamePlace">📍 مکان بازی</label>
+            <button onclick="togglePlaceInput()" id="add-place-btn" style="background:rgba(233,69,96,.1); border:1px solid rgba(233,69,96,.3); color:var(--accent); border-radius:8px; padding:4px 10px; font-size:12px; font-weight:700;" data-i18n="addNew">+ جدید</button>
+          </div>
+          <div id="saved-places" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+          <div id="custom-place-container" style="display:none; margin-top:10px;">
+            <input type="text" id="place" class="input-dark" data-i18n-ph="newPlacePh" placeholder="نام مکان جدید...">
+          </div>
+          <div id="selected-place-display" style="display:none; margin-top:10px;" class="card-surface">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px;">
+              <span style="color:var(--accent); font-weight:700; font-size:13px;">📍 <span id="selected-place-text"></span></span>
+              <button onclick="clearPlaceSelection()" style="color:var(--text-muted); font-size:18px; background:none; border:none; line-height:1;">✕</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Player Selection -->
+        <div style="margin-bottom:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <label style="font-size:13px; font-weight:700;" data-i18n="savedPlayers">👥 بازیکنان</label>
+            <button onclick="openAddPlayer()" style="background:rgba(233,69,96,.1); border:1px solid rgba(233,69,96,.3); color:var(--accent); border-radius:8px; padding:4px 10px; font-size:12px; font-weight:700;" data-i18n="addNew">+ جدید</button>
+          </div>
+          <div id="saved-players" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+          <p style="font-size:11px; color:var(--text-muted); margin-top:8px;" data-i18n="tapHint">ضربه اول → تیم A 🔵 | ضربه دوم → تیم B 🔴 | ضربه سوم → لغو انتخاب</p>
+        </div>
+
+        <!-- Teams Preview -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
+          <div class="card" style="padding:14px; border-color:rgba(79,172,254,.3);">
+            <div style="font-size:12px; font-weight:700; color:var(--blue-team); margin-bottom:8px;">🔵 <span data-i18n="teamA">تیم A</span></div>
+            <div id="team-a-players" style="min-height:40px;">
+              <div style="color:var(--text-muted); font-size:11px;" data-i18n="pickPlayers">بازیکنان را انتخاب کنید</div>
+            </div>
+          </div>
+          <div class="card" style="padding:14px; border-color:rgba(247,112,98,.3);">
+            <div style="font-size:12px; font-weight:700; color:var(--red-team); margin-bottom:8px;">🔴 <span data-i18n="teamB">تیم B</span></div>
+            <div id="team-b-players" style="min-height:40px;">
+              <div style="color:var(--text-muted); font-size:11px;" data-i18n="pickPlayers">بازیکنان را انتخاب کنید</div>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="startGame()" class="btn-primary" style="width:100%; font-size:16px;" data-i18n="startGame">🎮 شروع بازی</button>
+      </div>
+
+      <!-- GAME PANEL (hidden initially) -->
+      <div id="game-panel" style="display:none; flex:1; flex-direction:column;">
+
+        <!-- Info bar -->
+        <div style="padding:8px 16px; background:var(--bg-card); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted);">
+          <span id="display-date"></span>
+          <span id="display-place"></span>
+        </div>
+
+        <!-- Status bar -->
+        <div id="status-bar" class="status-normal" style="text-align:center; padding:10px; font-weight:700; font-size:14px; margin:8px 16px; border-radius:10px;">
+          🎯 <span data-i18n="target">هدف</span>: 204
+        </div>
+
+        <!-- Round indicator -->
+        <div style="text-align:center; padding:4px; font-size:12px; color:var(--text-muted);">
+          <span data-i18n="waitingFor">در انتظار</span>: <span id="round-waiting" style="color:var(--gold); font-weight:700;"></span>
+        </div>
+
+        <!-- Scoreboard -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0; flex:1;">
+
+          <!-- Team A -->
+          <div id="card-a" class="card" style="margin:8px 4px 8px 16px; padding:14px; display:flex; flex-direction:column; border-color:rgba(79,172,254,.25);">
+            <div style="text-align:center; margin-bottom:8px;">
+              <div style="font-size:11px; font-weight:700; color:var(--blue-team);">🔵 <span id="disp-nameA"></span></div>
+            </div>
+            <div id="scoreA" style="font-size:52px; font-weight:900; color:var(--blue-team); text-align:center; line-height:1; margin-bottom:10px;">0</div>
+
+            <!-- Quick score -->
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; margin-bottom:8px;">
+              <button onclick="quickScore('A',52)" class="qs-btn qs-a">+52</button>
+              <button onclick="quickScore('A',20)" class="qs-btn qs-a">+20</button>
+              <button onclick="quickScore('A',10)" class="qs-btn qs-a">+10</button>
+            </div>
+
+            <!-- Score input with +/- toggle -->
+            <div class="score-input-wrap" style="margin-bottom:8px;">
+              <button id="sign-a" class="sign-toggle" onclick="toggleSign('A')">+</button>
+              <input type="number" id="addA" class="input-dark" placeholder="0" inputmode="numeric" pattern="[0-9]*" style="flex:1; padding:10px; font-size:18px; font-weight:700; text-align:center;">
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:8px;">
+              <button onclick="addScore('A')" class="btn-team-a" style="padding:10px; font-size:18px;">✓</button>
+              <button onclick="undoScore('A')" style="background:rgba(245,166,35,.15); border:1px solid rgba(245,166,35,.3); color:var(--gold); border-radius:10px; padding:10px; font-size:18px; font-weight:900; touch-action:manipulation;">↩</button>
+            </div>
+
+            <!-- Log -->
+            <div class="card-surface" style="padding:8px; flex:1; overflow:hidden;">
+              <div style="font-size:10px; color:var(--text-muted); margin-bottom:4px;" data-i18n="hands">📋 دست‌ها</div>
+              <div id="log-a" style="max-height:100px; overflow-y:auto;"></div>
+            </div>
+          </div>
+
+          <!-- Team B -->
+          <div id="card-b" class="card" style="margin:8px 16px 8px 4px; padding:14px; display:flex; flex-direction:column; border-color:rgba(247,112,98,.25);">
+            <div style="text-align:center; margin-bottom:8px;">
+              <div style="font-size:11px; font-weight:700; color:var(--red-team);">🔴 <span id="disp-nameB"></span></div>
+            </div>
+            <div id="scoreB" style="font-size:52px; font-weight:900; color:var(--red-team); text-align:center; line-height:1; margin-bottom:10px;">0</div>
+
+            <!-- Quick score -->
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; margin-bottom:8px;">
+              <button onclick="quickScore('B',52)" class="qs-btn qs-b">+52</button>
+              <button onclick="quickScore('B',20)" class="qs-btn qs-b">+20</button>
+              <button onclick="quickScore('B',10)" class="qs-btn qs-b">+10</button>
+            </div>
+
+            <!-- Score input with +/- toggle -->
+            <div class="score-input-wrap" style="margin-bottom:8px;">
+              <button id="sign-b" class="sign-toggle" onclick="toggleSign('B')">+</button>
+              <input type="number" id="addB" class="input-dark" placeholder="0" inputmode="numeric" pattern="[0-9]*" style="flex:1; padding:10px; font-size:18px; font-weight:700; text-align:center;">
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:8px;">
+              <button onclick="addScore('B')" class="btn-team-b" style="padding:10px; font-size:18px;">✓</button>
+              <button onclick="undoScore('B')" style="background:rgba(245,166,35,.15); border:1px solid rgba(245,166,35,.3); color:var(--gold); border-radius:10px; padding:10px; font-size:18px; font-weight:900; touch-action:manipulation;">↩</button>
+            </div>
+
+            <!-- Log -->
+            <div class="card-surface" style="padding:8px; flex:1; overflow:hidden;">
+              <div style="font-size:10px; color:var(--text-muted); margin-bottom:4px;" data-i18n="hands">📋 دست‌ها</div>
+              <div id="log-b" style="max-height:100px; overflow-y:auto;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Game Controls -->
+        <div style="padding:12px 16px; background:var(--bg-card); border-top:1px solid var(--border); display:flex; gap:10px; padding-bottom:20px;">
+          <button onclick="resetGame()" class="btn-ghost" style="flex:1;" data-i18n="cancelGame">🔄 لغو</button>
+          <button id="finish-btn" onclick="finishGame()" class="btn-primary" style="flex:2; display:none;" data-i18n="saveGame">💾 ذخیره</button>
+        </div>
+      </div>
     </div>
 
-    <!-- Overlay for bottom sheet -->
-    <div id="overlay" class="overlay" onclick="closeBottomSheet()"></div>
-
-    <!-- Bottom Sheet for Adding Player -->
-    <div id="add-player-sheet" class="bottom-sheet">
-        <div class="swipe-indicator"></div>
-        <div class="p-6">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">افزودن بازیکن جدید</h3>
-            <input type="text" id="new-player-name" placeholder="نام بازیکن" 
-                   class="w-full p-3 border-2 border-gray-200 rounded-xl mb-4 text-base">
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="closeBottomSheet()" 
-                        class="touch-btn py-3 border-2 border-gray-300 rounded-xl font-bold text-gray-700">
-                    لغو
-                </button>
-                <button onclick="saveNewPlayer()" 
-                        class="touch-btn py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold">
-                    ذخیره
-                </button>
-            </div>
+    <!-- ── TAB: STATS ── -->
+    <div id="view-stats" style="display:none; flex:1; overflow-y:auto; padding:16px; padding-bottom:80px;">
+      <div style="text-align:center; margin-bottom:20px;">
+        <h2 style="font-size:22px; font-weight:900; margin:0 0 4px;" data-i18n="stats">آمار بازیکنان</h2>
+        <p style="color:var(--text-muted); font-size:12px; margin:0;" data-i18n="statsSubtitle">عملکرد و رکوردها</p>
+      </div>
+      <div id="stats-content">
+        <div style="text-align:center; padding:40px 0;">
+          <div style="font-size:48px; margin-bottom:16px;">📊</div>
+          <button onclick="calculateStats()" class="btn-primary" data-i18n="calcStats">محاسبه آمار</button>
         </div>
+      </div>
     </div>
 
-    <script>
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwBAgnkl-zYbG9fRPsYUfBWjqMB-tMT8M0PNkg_IsycE9wKnqhv2-59vVazGB5vYfet/exec"; 
+    <!-- ── TAB: HISTORY ── -->
+    <div id="view-history" style="display:none; flex:1; overflow-y:auto; padding:16px; padding-bottom:80px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; position:sticky; top:0; background:var(--bg-deep); padding:8px 0; z-index:5;">
+        <h2 style="font-size:22px; font-weight:900; margin:0;" data-i18n="history">تاریخچه</h2>
+        <button onclick="loadHistory(true)" style="background:rgba(233,69,96,.1); border:1px solid rgba(233,69,96,.3); color:var(--accent); border-radius:10px; padding:8px 14px; font-size:14px; font-weight:700;">🔄</button>
+      </div>
+      <div id="history-list">
+        <div style="text-align:center; padding:40px 0; color:var(--text-muted);">
+          <div style="font-size:48px; margin-bottom:12px;">📜</div>
+          <p style="font-size:13px;" data-i18n="tapToLoad">کلیک کنید تا بارگذاری شود</p>
+        </div>
+      </div>
+    </div>
 
-        // ============================================
-        // CACHE SYSTEM — one fetch shared by all tabs
-        // ============================================
-        let _historyCache = null;       // in-memory cache (cleared on new game save)
-        let _historyFetchPromise = null; // prevents duplicate parallel fetches
+  </div>
 
-        function fetchHistory(forceRefresh = false) {
-            if (!forceRefresh && _historyCache !== null) {
-                return Promise.resolve(_historyCache);
-            }
-            // If a fetch is already in-flight, reuse it
-            if (_historyFetchPromise) {
-                return _historyFetchPromise;
-            }
-            _historyFetchPromise = fetch(GOOGLE_SCRIPT_URL)
-                .then(r => r.json())
-                .then(data => {
-                    _historyCache = Array.isArray(data) ? data : [];
-                    _historyFetchPromise = null;
-                    return _historyCache;
-                })
-                .catch(err => {
-                    _historyFetchPromise = null;
-                    throw err;
-                });
-            return _historyFetchPromise;
+  <!-- Tab Bar -->
+  <div class="tab-bar" style="display:flex;">
+    <button class="tab-btn active" onclick="switchTab('game')" id="tab-game">
+      <span class="tab-icon">📝</span>
+      <span data-i18n="tabGame">بازی</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('stats')" id="tab-stats">
+      <span class="tab-icon">📊</span>
+      <span data-i18n="tabStats">آمار</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('history')" id="tab-history">
+      <span class="tab-icon">📜</span>
+      <span data-i18n="tabHistory">تاریخچه</span>
+    </button>
+  </div>
+</div>
+
+<!-- Overlay -->
+<div id="overlay" class="overlay" onclick="closeBottomSheet()"></div>
+
+<!-- Bottom Sheet: Add Player -->
+<div id="add-player-sheet" class="bottom-sheet">
+  <div class="drag-handle"></div>
+  <div style="padding:20px;">
+    <h3 style="font-weight:800; margin-bottom:16px;" data-i18n="addPlayerTitle">افزودن بازیکن جدید</h3>
+    <input type="text" id="new-player-name" class="input-dark" data-i18n-ph="playerNamePh" placeholder="نام بازیکن" style="margin-bottom:16px;">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <button onclick="closeBottomSheet()" class="btn-ghost" data-i18n="cancel">لغو</button>
+      <button onclick="saveNewPlayer()" class="btn-primary" data-i18n="save">ذخیره</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Sheet: User Menu -->
+<div id="user-menu-sheet" class="bottom-sheet">
+  <div class="drag-handle"></div>
+  <div style="padding:20px;">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border);">
+      <div style="width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--gold)); display:flex; align-items:center; justify-content:center; font-size:22px;">👤</div>
+      <div>
+        <div id="menu-username" style="font-weight:800; font-size:16px;"></div>
+        <div id="menu-phone" style="font-size:12px; color:var(--text-muted);"></div>
+        <div id="menu-email" style="font-size:11px; color:var(--text-muted);"></div>
+      </div>
+    </div>
+    <button onclick="doLogout()" style="width:100%; background:rgba(233,69,96,.1); border:1px solid rgba(233,69,96,.3); color:var(--accent); border-radius:12px; padding:14px; font-weight:700; font-size:15px;" data-i18n="logout">🚪 خروج</button>
+  </div>
+</div>
+
+<!-- Player Profile Modal -->
+<div id="profile-modal" style="display:none;">
+  <div style="min-height:100vh; padding:16px 16px 40px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; position:sticky; top:0; background:var(--bg-deep); padding:12px 0; z-index:5;">
+      <button onclick="closeProfile()" style="background:var(--bg-surface); border:1px solid var(--border); color:var(--text-main); border-radius:10px; padding:8px 14px; font-weight:700;">← <span data-i18n="back">بازگشت</span></button>
+      <h2 id="profile-name" style="font-size:18px; font-weight:900; margin:0;"></h2>
+      <div style="width:60px;"></div>
+    </div>
+    <div id="profile-content"></div>
+  </div>
+</div>
+
+<!-- Game Summary Modal -->
+<div id="summary-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:400; overflow-y:auto;">
+  <div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:16px;">
+    <div class="card" style="width:100%; max-width:400px;" id="summary-content"></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+// FIREBASE CONFIG — Replace with your Firebase project details
+// ════════════════════════════════════════════════════════════
+const FB = {
+  apiKey:            "YOUR_API_KEY",
+  projectId:         "YOUR_PROJECT_ID",
+  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
+};
+
+const FIRESTORE = `https://firestore.googleapis.com/v1/projects/${FB.projectId}/databases/(default)/documents`;
+const AUTH_URL  = `https://identitytoolkit.googleapis.com/v1/accounts`;
+
+// ════════════════════════════════════════════════════════════
+// i18n — BILINGUAL (Dari / English)  — RTL kept always
+// ════════════════════════════════════════════════════════════
+const LANG = {
+  dr: {
+    email:'ایمیل', password:'رمز عبور', displayName:'نام نمایشی', phone:'شماره موبایل',
+    login:'ورود', register:'ثبت‌نام', goRegister:'حساب ندارید؟ ثبت‌نام کنید',
+    goLogin:'قبلاً ثبت‌نام کرده‌اید؟ ورود', goLoginBtn:'برو به ورود',
+    verifyTitle:'ایمیل خود را تأیید کنید',
+    verifyMsg:'لینک تأیید به ایمیل شما ارسال شد. پس از تأیید، ورود کنید.',
+    syncPending:'⏳ در انتظار همگام‌سازی - کلیک برای تلاش مجدد',
+    recordedBy:'ثبت توسط:', newGame:'بازی جدید', selectPlayers:'انتخاب بازیکنان',
+    gamePlace:'📍 مکان بازی', addNew:'+ جدید', savedPlayers:'👥 بازیکنان',
+    tapHint:'ضربه اول → تیم A 🔵 | ضربه دوم → تیم B 🔴 | ضربه سوم → لغو',
+    teamA:'تیم A', teamB:'تیم B', pickPlayers:'بازیکنان را انتخاب کنید',
+    startGame:'🎮 شروع بازی', target:'هدف', hands:'📋 دست‌ها',
+    cancelGame:'🔄 لغو', saveGame:'💾 ذخیره',
+    waitingFor:'در انتظار', bothPlayed:'هر دو تیم بازی کردند',
+    stats:'آمار بازیکنان', statsSubtitle:'عملکرد و رکوردها', calcStats:'محاسبه آمار',
+    history:'تاریخچه', tapToLoad:'کلیک کنید تا بارگذاری شود',
+    tabGame:'بازی', tabStats:'آمار', tabHistory:'تاریخچه',
+    addPlayerTitle:'افزودن بازیکن جدید', playerNamePh:'نام بازیکن',
+    cancel:'لغو', save:'ذخیره', logout:'🚪 خروج', back:'بازگشت',
+    newPlacePh:'نام مکان جدید...',
+    authSubtitle:'ورود / ثبت‌نام',
+    saveGameBtn:'💾 ذخیره بازی', backToGame:'بازگشت به بازی',
+    gameOver:'بازی تمام شد!', summaryTitle:'خلاصه نتایج',
+    winner:'🥇 برنده', vs:'در مقابل', gameStats:'📊 آمار بازی',
+    totalHands:'کل دست‌ها', scoreDiff:'اختلاف امتیاز', finalTarget:'هدف نهایی', place:'مکان',
+    homeBtn:'🏠 خانه',
+    // Stats labels
+    activeStreaks:'🔥 نوار برد فعال', bestPairs:'🤝 بهترین جفت‌ها',
+    rankings:'👑 رتبه‌بندی', rankingHint:'رتبه‌بندی بر اساس ترکیب درصد برد و تجربه',
+    balancedTeams:'⚖️ پیشنهاد تیم متعادل', balancedHint:'بر اساس عملکرد گذشته بازیکنان',
+    overallStats:'کل آمار', gamesLbl:'بازی', playersLbl:'بازیکن', topPlayer:'برتر',
+    minGames3:'حداقل 3 بازی با هم لازم است', noStreaks:'هیچ نوار برد فعالی وجود ندارد',
+    noData:'داده‌ای موجود نیست',
+    // Profile
+    profileTitle:'پروفایل بازیکن', totalGames:'کل بازی‌ها', wins:'برد', losses:'باخت',
+    winRate:'درصد برد', bestStreak:'بهترین نوار', currentStreak:'نوار فعلی',
+    bestWinScore:'بهترین امتیاز برنده', worstLossScore:'ضعیف‌ترین امتیاز بازنده',
+    avgWinScore:'میانگین امتیاز برد', avgLossScore:'میانگین امتیاز باخت',
+    formGuide:'فرم اخیر (10 بازی آخر)', partnerships:'شراکت‌ها',
+    bestPartner:'بهترین شریک', worstPartner:'ضعیف‌ترین شریک',
+    headToHead:'رو در رو', nemesis:'کابوس', favouriteVictim:'قربانی مورد علاقه',
+    badges:'🏅 نشان‌ها', firstGame:'اولین بازی', mostGamesDay:'بیشترین بازی در یک روز',
+    // Badges
+    badgeSerial:'🔥 Serial Winner', badgeComeback:'👑 Comeback King',
+    badgeDominant:'💪 Dominant', badgeConsistent:'🎯 Consistent',
+    badgeRookie:'🆕 Rookie', badgeNightOwl:'🌙 Night Owl', badgeLoyal:'🤝 Loyal Partner',
+  },
+  en: {
+    email:'Email', password:'Password', displayName:'Display Name', phone:'Mobile Number',
+    login:'Login', register:'Register', goRegister:"Don't have an account? Register",
+    goLogin:'Already registered? Login', goLoginBtn:'Go to Login',
+    verifyTitle:'Verify Your Email',
+    verifyMsg:'A verification link was sent to your email. Login after verifying.',
+    syncPending:'⏳ Pending sync - tap to retry',
+    recordedBy:'Recorded by:', newGame:'New Game', selectPlayers:'Select Players',
+    gamePlace:'📍 Game Location', addNew:'+ New', savedPlayers:'👥 Players',
+    tapHint:'1st tap → Team A 🔵 | 2nd tap → Team B 🔴 | 3rd tap → Deselect',
+    teamA:'Team A', teamB:'Team B', pickPlayers:'Select players',
+    startGame:'🎮 Start Game', target:'Target', hands:'📋 Hands',
+    cancelGame:'🔄 Cancel', saveGame:'💾 Save',
+    waitingFor:'Waiting for', bothPlayed:'Both teams played',
+    stats:'Player Stats', statsSubtitle:'Performance & Records', calcStats:'Calculate Stats',
+    history:'History', tapToLoad:'Tap to load',
+    tabGame:'Game', tabStats:'Stats', tabHistory:'History',
+    addPlayerTitle:'Add New Player', playerNamePh:'Player name',
+    cancel:'Cancel', save:'Save', logout:'🚪 Logout', back:'Back',
+    newPlacePh:'New location name...',
+    authSubtitle:'Login / Register',
+    saveGameBtn:'💾 Save Game', backToGame:'Back to Game',
+    gameOver:'Game Over!', summaryTitle:'Result Summary',
+    winner:'🥇 Winner', vs:'vs', gameStats:'📊 Game Stats',
+    totalHands:'Total Hands', scoreDiff:'Score Diff', finalTarget:'Final Target', place:'Place',
+    homeBtn:'🏠 Home',
+    activeStreaks:'🔥 Active Win Streaks', bestPairs:'🤝 Best Pairs',
+    rankings:'👑 Rankings', rankingHint:'Ranked by win rate × experience',
+    balancedTeams:'⚖️ Balanced Team Suggestion', balancedHint:'Based on past performance',
+    overallStats:'Overall Stats', gamesLbl:'Games', playersLbl:'Players', topPlayer:'Top Player',
+    minGames3:'At least 3 games together required', noStreaks:'No active win streaks',
+    noData:'No data available',
+    profileTitle:'Player Profile', totalGames:'Total Games', wins:'Wins', losses:'Losses',
+    winRate:'Win Rate', bestStreak:'Best Streak', currentStreak:'Current Streak',
+    bestWinScore:'Best Winning Score', worstLossScore:'Worst Losing Score',
+    avgWinScore:'Avg Win Score', avgLossScore:'Avg Loss Score',
+    formGuide:'Recent Form (last 10)', partnerships:'Partnerships',
+    bestPartner:'Best Partner', worstPartner:'Worst Partner',
+    headToHead:'Head to Head', nemesis:'Nemesis', favouriteVictim:'Favourite Victim',
+    badges:'🏅 Badges', firstGame:'First Game', mostGamesDay:'Most Games in One Day',
+    badgeSerial:'🔥 Serial Winner', badgeComeback:'👑 Comeback King',
+    badgeDominant:'💪 Dominant', badgeConsistent:'🎯 Consistent',
+    badgeRookie:'🆕 Rookie', badgeNightOwl:'🌙 Night Owl', badgeLoyal:'🤝 Loyal Partner',
+  }
+};
+
+let currentLang = localStorage.getItem('penak_lang') || 'dr';
+function t(key) { return LANG[currentLang][key] || LANG['dr'][key] || key; }
+
+function applyLang() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    if (LANG[currentLang][k]) el.textContent = LANG[currentLang][k];
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const k = el.getAttribute('data-i18n-ph');
+    if (LANG[currentLang][k]) el.placeholder = LANG[currentLang][k];
+  });
+  document.getElementById('lang-btn').textContent = currentLang === 'dr' ? 'EN' : 'دری';
+}
+
+function toggleLang() {
+  currentLang = currentLang === 'dr' ? 'en' : 'dr';
+  localStorage.setItem('penak_lang', currentLang);
+  applyLang();
+}
+
+// ════════════════════════════════════════════════════════════
+// AUTH STATE
+// ════════════════════════════════════════════════════════════
+let currentUser = null; // { idToken, uid, email, displayName, phone }
+
+async function fbAuthReq(endpoint, body) {
+  const r = await fetch(`${AUTH_URL}:${endpoint}?key=${FB.apiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  const d = await r.json();
+  if (d.error) throw new Error(d.error.message);
+  return d;
+}
+
+async function doRegister() {
+  const name  = document.getElementById('reg-name').value.trim();
+  const phone = document.getElementById('reg-phone').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass  = document.getElementById('reg-pass').value;
+  const errEl = document.getElementById('reg-err');
+  errEl.style.display = 'none';
+
+  if (!name || !phone || !email || !pass) {
+    errEl.textContent = currentLang === 'en' ? 'Please fill all fields' : 'لطفاً همه فیلدها را پر کنید';
+    errEl.style.display = 'block'; return;
+  }
+  if (pass.length < 6) {
+    errEl.textContent = currentLang === 'en' ? 'Password must be at least 6 characters' : 'رمز عبور حداقل 6 کاراکتر باشد';
+    errEl.style.display = 'block'; return;
+  }
+
+  try {
+    const data = await fbAuthReq('signUp', { email, password: pass, returnSecureToken: true });
+    // Update display name
+    await fbAuthReq('update', { idToken: data.idToken, displayName: name, returnSecureToken: true });
+    // Send verification email
+    await fbAuthReq('sendOobCode', { requestType: 'VERIFY_EMAIL', idToken: data.idToken });
+    // Save phone to Firestore user profile
+    await firestoreSet(`users/${data.localId}`, { displayName: name, phone, email, uid: data.localId });
+    document.getElementById('register-form').style.display = 'none';
+    document.getElementById('verify-notice').style.display = 'block';
+  } catch(e) {
+    errEl.textContent = e.message; errEl.style.display = 'block';
+  }
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-err');
+  errEl.style.display = 'none';
+
+  if (!email || !pass) {
+    errEl.textContent = currentLang === 'en' ? 'Please fill all fields' : 'لطفاً همه فیلدها را پر کنید';
+    errEl.style.display = 'block'; return;
+  }
+
+  try {
+    const data = await fbAuthReq('signInWithPassword', { email, password: pass, returnSecureToken: true });
+    if (!data.registered) throw new Error('USER_NOT_FOUND');
+
+    // Check email verified
+    const info = await fbAuthReq('lookup', { idToken: data.idToken });
+    const userInfo = info.users[0];
+    if (!userInfo.emailVerified) {
+      errEl.textContent = currentLang === 'en'
+        ? 'Please verify your email first. Check your inbox.'
+        : 'لطفاً ابتدا ایمیل خود را تأیید کنید.';
+      errEl.style.display = 'block'; return;
+    }
+
+    // Load phone from Firestore
+    let phone = '';
+    try {
+      const prof = await firestoreGet(`users/${data.localId}`);
+      phone = prof?.phone || '';
+    } catch(e) {}
+
+    currentUser = {
+      idToken: data.idToken,
+      uid: data.localId,
+      email,
+      displayName: userInfo.displayName || email,
+      phone
+    };
+    localStorage.setItem('penak_user', JSON.stringify(currentUser));
+    enterApp();
+  } catch(e) {
+    errEl.textContent = e.message; errEl.style.display = 'block';
+  }
+}
+
+function doLogout() {
+  currentUser = null;
+  localStorage.removeItem('penak_user');
+  closeBottomSheet();
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('auth-page').style.display = 'flex';
+  showLogin();
+}
+
+function showRegister() {
+  document.getElementById('login-form').style.display = 'none';
+  document.getElementById('verify-notice').style.display = 'none';
+  document.getElementById('register-form').style.display = 'block';
+  document.getElementById('auth-subtitle').textContent = t('register');
+}
+function showLogin() {
+  document.getElementById('register-form').style.display = 'none';
+  document.getElementById('verify-notice').style.display = 'none';
+  document.getElementById('login-form').style.display = 'block';
+  document.getElementById('auth-subtitle').textContent = t('authSubtitle');
+}
+
+function enterApp() {
+  document.getElementById('auth-page').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('header-username').textContent = currentUser.displayName;
+  document.getElementById('recorder-name').textContent = currentUser.displayName;
+  document.getElementById('recorder-phone').textContent = currentUser.phone;
+  document.getElementById('menu-username').textContent = currentUser.displayName;
+  document.getElementById('menu-phone').textContent = currentUser.phone;
+  document.getElementById('menu-email').textContent = currentUser.email;
+  loadConfig();
+  checkSyncStatus();
+  applyLang();
+}
+
+function showUserMenu() {
+  document.getElementById('user-menu-sheet').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+}
+
+// ════════════════════════════════════════════════════════════
+// FIRESTORE REST HELPERS
+// ════════════════════════════════════════════════════════════
+function toFS(obj) {
+  // Convert JS object to Firestore REST format
+  const fields = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (v === null || v === undefined) fields[k] = { nullValue: null };
+    else if (typeof v === 'boolean') fields[k] = { booleanValue: v };
+    else if (typeof v === 'number') fields[k] = { doubleValue: v };
+    else if (typeof v === 'string') fields[k] = { stringValue: v };
+    else if (Array.isArray(v)) fields[k] = { arrayValue: { values: v.map(i => typeof i === 'string' ? { stringValue: i } : { doubleValue: i }) } };
+    else if (typeof v === 'object') fields[k] = { mapValue: { fields: toFS(v) } };
+  }
+  return fields;
+}
+
+function fromFS(fields) {
+  if (!fields) return {};
+  const obj = {};
+  for (const [k, v] of Object.entries(fields)) {
+    if (v.stringValue !== undefined) obj[k] = v.stringValue;
+    else if (v.doubleValue !== undefined) obj[k] = v.doubleValue;
+    else if (v.integerValue !== undefined) obj[k] = Number(v.integerValue);
+    else if (v.booleanValue !== undefined) obj[k] = v.booleanValue;
+    else if (v.nullValue !== undefined) obj[k] = null;
+    else if (v.arrayValue) obj[k] = (v.arrayValue.values || []).map(i => i.stringValue ?? i.doubleValue ?? i.integerValue ?? null);
+    else if (v.mapValue) obj[k] = fromFS(v.mapValue.fields);
+  }
+  return obj;
+}
+
+async function fsRequest(method, path, body = null) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (currentUser?.idToken) headers['Authorization'] = `Bearer ${currentUser.idToken}`;
+  const opts = { method, headers };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(`${FIRESTORE}/${path}`, opts);
+  if (!r.ok) {
+    const e = await r.json();
+    throw new Error(e.error?.message || 'Firestore error');
+  }
+  if (r.status === 204) return null;
+  return r.json();
+}
+
+async function firestoreSet(path, data) {
+  return fsRequest('PATCH', `${path}?updateMask.fieldPaths=${Object.keys(data).join('&updateMask.fieldPaths=')}`, { fields: toFS(data) });
+}
+
+async function firestoreAdd(collection, data) {
+  return fsRequest('POST', collection, { fields: toFS(data) });
+}
+
+async function firestoreGet(path) {
+  const r = await fsRequest('GET', path);
+  return r?.fields ? fromFS(r.fields) : null;
+}
+
+async function firestoreQuery(collection, orderBy = 'timestamp', limit = 200) {
+  const body = {
+    structuredQuery: {
+      from: [{ collectionId: collection }],
+      orderBy: [{ field: { fieldPath: orderBy }, direction: 'ASCENDING' }],
+      limit
+    }
+  };
+  const r = await fsRequest('POST', ':runQuery', body);
+  if (!Array.isArray(r)) return [];
+  return r.filter(d => d.document).map(d => ({ id: d.document.name.split('/').pop(), ...fromFS(d.document.fields) }));
+}
+
+// ════════════════════════════════════════════════════════════
+// CACHE
+// ════════════════════════════════════════════════════════════
+let _historyCache = null;
+let _historyFetchPromise = null;
+let _configCache = null;
+
+function fetchHistory(force = false) {
+  if (!force && _historyCache) return Promise.resolve(_historyCache);
+  if (_historyFetchPromise) return _historyFetchPromise;
+  _historyFetchPromise = firestoreQuery('games', 'timestamp')
+    .then(docs => {
+      _historyCache = docs.map(d => ({
+        id: d.id,
+        date: d.date || '', time: d.time || '', place: d.place || '',
+        teamA: { players: d.teamAPlayers || '', score: d.teamAScore || 0 },
+        teamB: { players: d.teamBPlayers || '', score: d.teamBScore || 0 },
+        winner: d.winner || '',
+        recorder: d.recorderName || '',
+        recorderPhone: d.recorderPhone || '',
+        teamAHistory: d.teamAHistory || [],
+        teamBHistory: d.teamBHistory || [],
+        timestamp: d.timestamp || 0
+      }));
+      _historyFetchPromise = null;
+      return _historyCache;
+    })
+    .catch(e => { _historyFetchPromise = null; throw e; });
+  return _historyFetchPromise;
+}
+
+function invalidateHistoryCache() { _historyCache = null; _historyFetchPromise = null; }
+
+// ════════════════════════════════════════════════════════════
+// CONFIG — players & places
+// ════════════════════════════════════════════════════════════
+let savedPlayers = [];
+let savedPlaces  = [];
+let selectedPlayers = { teamA: [], teamB: [] };
+
+async function loadConfig() {
+  // Show cached instantly
+  const cp = JSON.parse(localStorage.getItem('penak_players') || '[]');
+  const cl = JSON.parse(localStorage.getItem('penak_places')  || '[]');
+  if (cp.length) { savedPlayers = cp; renderSavedPlayers(); }
+  if (cl.length) { savedPlaces  = cl; renderSavedPlaces();  }
+
+  try {
+    const data = await firestoreGet('config/main');
+    if (data) {
+      if (data.players?.length) { savedPlayers = data.players; localStorage.setItem('penak_players', JSON.stringify(savedPlayers)); renderSavedPlayers(); }
+      if (data.locations?.length) { savedPlaces = data.locations; localStorage.setItem('penak_places', JSON.stringify(savedPlaces)); renderSavedPlaces(); }
+      _configCache = data;
+    }
+  } catch(e) {}
+}
+
+async function syncConfig() {
+  localStorage.setItem('penak_players', JSON.stringify(savedPlayers));
+  localStorage.setItem('penak_places',  JSON.stringify(savedPlaces));
+  try {
+    await firestoreSet('config/main', { players: savedPlayers, locations: savedPlaces, lastSync: Date.now() });
+    _configCache = null;
+  } catch(e) {}
+}
+
+// ════════════════════════════════════════════════════════════
+// GAME STATE
+// ════════════════════════════════════════════════════════════
+let gameState = {
+  active: false,
+  date: '', time: '', place: '',
+  target: 204,
+  teamA: { players: [], score: 0, history: [], handsPlayed: 0 },
+  teamB: { players: [], score: 0, history: [], handsPlayed: 0 },
+  winner: null,
+  signA: '+',
+  signB: '+'
+};
+
+// ════════════════════════════════════════════════════════════
+// PLACE MANAGEMENT
+// ════════════════════════════════════════════════════════════
+function renderSavedPlaces() {
+  const c = document.getElementById('saved-places');
+  c.innerHTML = '';
+  if (!savedPlaces.length) {
+    c.innerHTML = `<span style="color:var(--text-muted); font-size:12px;">${currentLang==='en'?'No places saved yet':'هنوز مکانی ثبت نشده'}</span>`;
+    return;
+  }
+  savedPlaces.forEach(p => {
+    const el = document.createElement('button');
+    el.className = 'place-chip';
+    el.textContent = p;
+    el.onclick = () => selectPlace(p);
+    c.appendChild(el);
+  });
+}
+
+function selectPlace(p) {
+  document.getElementById('place').value = p;
+  document.getElementById('selected-place-text').textContent = p;
+  document.getElementById('selected-place-display').style.display = 'block';
+  document.getElementById('custom-place-container').style.display = 'none';
+  document.getElementById('saved-places').style.display = 'none';
+  document.getElementById('add-place-btn').textContent = t('addNew').replace('+','✏️');
+}
+
+function clearPlaceSelection() {
+  document.getElementById('place').value = '';
+  document.getElementById('selected-place-display').style.display = 'none';
+  document.getElementById('saved-places').style.display = 'flex';
+  document.getElementById('add-place-btn').textContent = t('addNew');
+}
+
+function togglePlaceInput() {
+  const cc = document.getElementById('custom-place-container');
+  const sp = document.getElementById('saved-places');
+  const sd = document.getElementById('selected-place-display');
+  const btn = document.getElementById('add-place-btn');
+  if (cc.style.display === 'none') {
+    cc.style.display = 'block'; sp.style.display = 'none'; sd.style.display = 'none';
+    document.getElementById('place').value = '';
+    document.getElementById('place').focus();
+    btn.textContent = t('cancel');
+  } else {
+    cc.style.display = 'none'; sp.style.display = 'flex';
+    btn.textContent = t('addNew');
+  }
+}
+
+function addPlace(p) {
+  if (!p?.trim()) return;
+  p = p.trim();
+  const i = savedPlaces.indexOf(p);
+  if (i > -1) savedPlaces.splice(i, 1);
+  savedPlaces.unshift(p);
+  if (savedPlaces.length > 20) savedPlaces = savedPlaces.slice(0, 20);
+  syncConfig();
+  renderSavedPlaces();
+}
+
+// ════════════════════════════════════════════════════════════
+// PLAYER MANAGEMENT
+// ════════════════════════════════════════════════════════════
+function renderSavedPlayers() {
+  const c = document.getElementById('saved-players');
+  c.innerHTML = '';
+  if (!savedPlayers.length) {
+    c.innerHTML = `<span style="color:var(--text-muted); font-size:12px;">${currentLang==='en'?'No players saved yet':'هنوز بازیکنی ثبت نشده'}</span>`;
+    return;
+  }
+  savedPlayers.forEach(p => {
+    const isA = selectedPlayers.teamA.includes(p);
+    const isB = selectedPlayers.teamB.includes(p);
+    const el = document.createElement('button');
+    el.className = `player-chip ${isA ? 'team-a' : isB ? 'team-b' : ''}`;
+    el.textContent = (isA ? '🔵 ' : isB ? '🔴 ' : '') + p;
+    el.onclick = () => togglePlayerSelection(p);
+    c.appendChild(el);
+  });
+}
+
+function togglePlayerSelection(player) {
+  const inA = selectedPlayers.teamA.includes(player);
+  const inB = selectedPlayers.teamB.includes(player);
+
+  if (!inA && !inB) {
+    // Not selected → try Team A (max 2)
+    if (selectedPlayers.teamA.length < 2) {
+      selectedPlayers.teamA.push(player);
+    } else if (selectedPlayers.teamB.length < 2) {
+      selectedPlayers.teamB.push(player);
+    } else {
+      showNotification(currentLang==='en' ? '⚠️ Max 2 players per team' : '⚠️ هر تیم حداکثر 2 بازیکن', 'warning');
+      return;
+    }
+  } else if (inA) {
+    selectedPlayers.teamA = selectedPlayers.teamA.filter(p => p !== player);
+    if (selectedPlayers.teamB.length < 2) {
+      selectedPlayers.teamB.push(player);
+    }
+  } else {
+    selectedPlayers.teamB = selectedPlayers.teamB.filter(p => p !== player);
+  }
+
+  renderSavedPlayers();
+  updateTeamDisplays();
+}
+
+function updateTeamDisplays() {
+  const ta = document.getElementById('team-a-players');
+  const tb = document.getElementById('team-b-players');
+  ta.innerHTML = selectedPlayers.teamA.length === 0
+    ? `<div style="color:var(--text-muted); font-size:11px;">${t('pickPlayers')}</div>`
+    : selectedPlayers.teamA.map(p => `<div style="color:var(--blue-team); font-weight:700; font-size:13px; margin-bottom:4px;">🔵 ${p}</div>`).join('');
+  tb.innerHTML = selectedPlayers.teamB.length === 0
+    ? `<div style="color:var(--text-muted); font-size:11px;">${t('pickPlayers')}</div>`
+    : selectedPlayers.teamB.map(p => `<div style="color:var(--red-team); font-weight:700; font-size:13px; margin-bottom:4px;">🔴 ${p}</div>`).join('');
+}
+
+function openAddPlayer() {
+  document.getElementById('add-player-sheet').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('new-player-name').value = '';
+  setTimeout(() => document.getElementById('new-player-name').focus(), 300);
+}
+
+function closeBottomSheet() {
+  document.querySelectorAll('.bottom-sheet').forEach(s => s.classList.remove('open'));
+  document.getElementById('overlay').classList.remove('show');
+}
+
+function saveNewPlayer() {
+  const name = document.getElementById('new-player-name').value.trim();
+  if (!name) { showNotification(currentLang==='en'?'⚠️ Enter player name':'⚠️ لطفاً نام بازیکن را وارد کنید','warning'); return; }
+  if (savedPlayers.includes(name)) { showNotification(currentLang==='en'?'⚠️ Player already exists':'⚠️ این بازیکن قبلاً ثبت شده','warning'); return; }
+  savedPlayers.unshift(name);
+  syncConfig();
+  renderSavedPlayers();
+  closeBottomSheet();
+  showNotification(currentLang==='en'?'✅ Player added':'✅ بازیکن با موفقیت اضافه شد','success');
+}
+
+// ════════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ════════════════════════════════════════════════════════════
+function switchTab(tab) {
+  ['game','stats','history'].forEach(t => {
+    document.getElementById(`tab-${t}`).classList.remove('active');
+    document.getElementById(`view-${t}`).style.display = 'none';
+  });
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  document.getElementById(`view-${tab}`).style.display = 'flex';
+  if (tab === 'stats') calculateStats();
+  if (tab === 'history') loadHistory();
+}
+
+// ════════════════════════════════════════════════════════════
+// GAME FUNCTIONS
+// ════════════════════════════════════════════════════════════
+function startGame() {
+  let place = document.getElementById('place').value.trim();
+  if (document.getElementById('custom-place-container').style.display !== 'none' && place) addPlace(place);
+  if (!place) { showNotification(currentLang==='en'?'⚠️ Select a location':'⚠️ لطفاً مکان بازی را انتخاب کنید','warning'); return; }
+  if (selectedPlayers.teamA.length !== 2 || selectedPlayers.teamB.length !== 2) {
+    showNotification(currentLang==='en'?'⚠️ Each team needs exactly 2 players':'⚠️ هر تیم باید دقیقاً 2 بازیکن داشته باشد','warning'); return;
+  }
+
+  const now = new Date();
+  gameState.date  = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
+  gameState.time  = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  gameState.place = place;
+  gameState.teamA = { players: [...selectedPlayers.teamA], score: 0, history: [], handsPlayed: 0 };
+  gameState.teamB = { players: [...selectedPlayers.teamB], score: 0, history: [], handsPlayed: 0 };
+  gameState.active = true; gameState.target = 204; gameState.winner = null;
+  gameState.signA = '+'; gameState.signB = '+';
+
+  document.getElementById('display-date').textContent  = gameState.date + ' ' + gameState.time;
+  document.getElementById('display-place').textContent = '📍 ' + gameState.place;
+  document.getElementById('disp-nameA').textContent = selectedPlayers.teamA.join(', ');
+  document.getElementById('disp-nameB').textContent = selectedPlayers.teamB.join(', ');
+  document.getElementById('setup-panel').style.display = 'none';
+  document.getElementById('game-panel').style.display  = 'flex';
+  document.getElementById('game-panel').style.flexDirection = 'column';
+
+  resetVisuals();
+  updateRoundIndicator();
+  showNotification(currentLang==='en'?'✅ Game started':'✅ بازی شروع شد','success');
+}
+
+// +/- Toggle
+function toggleSign(team) {
+  const key = `sign${team}`;
+  gameState[key] = gameState[key] === '+' ? '-' : '+';
+  const btn = document.getElementById(`sign-${team.toLowerCase()}`);
+  btn.textContent = gameState[key];
+  btn.classList.toggle('negative', gameState[key] === '-');
+}
+
+function getSignedVal(team) {
+  const inputId = team === 'A' ? 'addA' : 'addB';
+  const raw = parseInt(document.getElementById(inputId).value);
+  if (isNaN(raw) || raw === 0) return null;
+  return gameState[`sign${team}`] === '-' ? -Math.abs(raw) : Math.abs(raw);
+}
+
+function quickScore(team, points) {
+  if (!gameState.active) return;
+  // Quick score always positive — counts as that team's hand for the round
+  applyScore(team, points, true);
+}
+
+function addScore(team) {
+  if (!gameState.active) return;
+  const val = getSignedVal(team);
+  if (val === null) { showNotification(currentLang==='en'?'⚠️ Enter a valid number':'⚠️ لطفاً عدد معتبر وارد کنید','warning'); return; }
+  const inputId = team === 'A' ? 'addA' : 'addB';
+  document.getElementById(inputId).value = '';
+  // Reset sign to +
+  gameState[`sign${team}`] = '+';
+  const btn = document.getElementById(`sign-${team.toLowerCase()}`);
+  btn.textContent = '+'; btn.classList.remove('negative');
+  applyScore(team, val, false);
+}
+
+function applyScore(team, val, isQuick) {
+  const ts = gameState[`team${team}`];
+  ts.score += val;
+  ts.history.push(val);
+  ts.handsPlayed++;
+
+  const scoreEl = document.getElementById(`score${team}`);
+  scoreEl.textContent = ts.score;
+  scoreEl.classList.add('score-flash');
+  setTimeout(() => scoreEl.classList.remove('score-flash'), 400);
+
+  updateLogs();
+  updateRoundIndicator();
+
+  // ── NEW WIN RULE: check only when both teams have equal hands ──
+  if (gameState.teamA.handsPlayed === gameState.teamB.handsPlayed) {
+    checkWinCondition();
+  }
+}
+
+function updateRoundIndicator() {
+  const el = document.getElementById('round-waiting');
+  const hA = gameState.teamA.handsPlayed;
+  const hB = gameState.teamB.handsPlayed;
+  if (hA === hB) {
+    el.textContent = t('bothPlayed') + ' ✓';
+    el.style.color = 'var(--green)';
+  } else if (hA > hB) {
+    el.textContent = document.getElementById('disp-nameB').textContent;
+    el.style.color = 'var(--gold)';
+  } else {
+    el.textContent = document.getElementById('disp-nameA').textContent;
+    el.style.color = 'var(--gold)';
+  }
+}
+
+function undoScore(team) {
+  const ts = gameState[`team${team}`];
+  if (!ts.history.length) { showNotification(currentLang==='en'?'⚠️ Nothing to undo':'⚠️ هیچ دستی وجود ندارد','warning'); return; }
+  const last = ts.history.pop();
+  ts.score -= last;
+  if (ts.score < 0) ts.score = 0;
+  ts.handsPlayed = Math.max(0, ts.handsPlayed - 1);
+  document.getElementById(`score${team}`).textContent = ts.score;
+  updateLogs();
+  updateRoundIndicator();
+  if (gameState.winner) {
+    gameState.winner = null;
+    document.getElementById('finish-btn').style.display = 'none';
+    document.getElementById('status-bar').className = 'status-normal';
+    document.getElementById('status-bar').innerHTML = `🎯 ${t('target')}: ${gameState.target}`;
+    document.getElementById('card-a').classList.remove('winner-glow');
+    document.getElementById('card-b').classList.remove('winner-glow');
+  }
+  showNotification(currentLang==='en'?'↩️ Undone':'↩️ حذف شد','info');
+}
+
+function updateLogs() {
+  ['A','B'].forEach(team => {
+    const log = document.getElementById(`log-${team.toLowerCase()}`);
+    const history = gameState[`team${team}`].history;
+    if (!history.length) { log.innerHTML = `<div style="color:var(--text-muted); font-size:11px; font-style:italic;">${currentLang==='en'?'Empty':'خالی'}</div>`; return; }
+    log.innerHTML = history.map((s,i) => {
+      const sign = s >= 0 ? '+' : '';
+      const color = s >= 0 ? (team==='A'?'var(--blue-team)':'var(--red-team)') : 'var(--accent)';
+      return `<div class="log-item"><span style="color:var(--text-muted); font-size:10px;">#${i+1}</span> <span style="color:${color}; font-weight:700;">${sign}${s}</span></div>`;
+    }).join('');
+    log.scrollTop = log.scrollHeight;
+  });
+}
+
+function resetVisuals() {
+  document.getElementById('scoreA').textContent = '0';
+  document.getElementById('scoreB').textContent = '0';
+  document.getElementById('status-bar').className = 'status-normal';
+  document.getElementById('status-bar').innerHTML = `🎯 ${t('target')}: 204`;
+  document.getElementById('card-a').classList.remove('winner-glow');
+  document.getElementById('card-b').classList.remove('winner-glow');
+  document.getElementById('finish-btn').style.display = 'none';
+  updateLogs();
+}
+
+// ── WIN CONDITION CHECK (end-of-round only) ──
+function checkWinCondition() {
+  const sA = gameState.teamA.score;
+  const sB = gameState.teamB.score;
+  const target = gameState.target;
+  const statusBar = document.getElementById('status-bar');
+
+  let winner = null, loser = null;
+  if (sA >= target) { winner = 'A'; loser = 'B'; }
+  else if (sB >= target) { winner = 'B'; loser = 'A'; }
+  if (!winner) return;
+
+  const loserScore = gameState[`team${loser}`].score;
+
+  let shifted = false;
+  if (target === 204 && loserScore >= 200 && loserScore < 204) {
+    gameState.target = 306; shifted = true;
+    statusBar.className = 'status-306';
+    statusBar.innerHTML = `⚠️ ${t('target')}: 306`;
+    showNotification(currentLang==='en'?'⚠️ New target: 306':'⚠️ هدف جدید: 306','warning');
+  } else if (target === 306 && loserScore >= 300 && loserScore < 306) {
+    gameState.target = 408; shifted = true;
+    statusBar.className = 'status-408';
+    statusBar.innerHTML = `⚠️ ${t('target')}: 408`;
+    showNotification(currentLang==='en'?'⚠️ New target: 408':'⚠️ هدف جدید: 408','warning');
+  }
+
+  if (!shifted) {
+    gameState.winner = gameState[`team${winner}`].players.join(', ');
+    statusBar.className = 'status-win';
+    statusBar.innerHTML = `🏆 ${currentLang==='en'?'Winner':'برنده'}: ${winner==='A'?'🔵':'🔴'}`;
+    document.getElementById(`card-${winner.toLowerCase()}`).classList.add('winner-glow');
+    document.getElementById('finish-btn').style.display = 'block';
+    showNotification(currentLang==='en'?'🎉 Game over!':'🎉 بازی تمام شد!','success');
+  }
+}
+
+function finishGame() { showGameSummary(); }
+
+function showGameSummary() {
+  const winnerTeam = gameState.winner === gameState.teamA.players.join(', ') ? 'A' : 'B';
+  const loserTeam  = winnerTeam === 'A' ? 'B' : 'A';
+  const wP = gameState[`team${winnerTeam}`].players;
+  const lP = gameState[`team${loserTeam}`].players;
+  const wS = gameState[`team${winnerTeam}`].score;
+  const lS = gameState[`team${loserTeam}`].score;
+  const totalHands = gameState.teamA.history.length + gameState.teamB.history.length;
+
+  document.getElementById('summary-content').innerHTML = `
+    <div style="background:linear-gradient(135deg,#00d9a3,#00a37a); padding:24px; border-radius:16px 16px 0 0; text-align:center; color:white;">
+      <div style="font-size:48px; margin-bottom:8px;">🏆</div>
+      <h2 style="font-size:22px; font-weight:900; margin:0 0 4px;">${t('gameOver')}</h2>
+      <p style="font-size:12px; opacity:.8; margin:0;">${t('summaryTitle')}</p>
+    </div>
+    <div style="padding:20px;">
+      <div style="text-align:center; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border);">
+        <div style="font-size:13px; color:var(--text-muted); margin-bottom:6px;">${t('winner')}</div>
+        <div style="font-size:20px; font-weight:900; color:var(--green); margin-bottom:4px;">${wP.join(' & ')}</div>
+        <div style="font-size:48px; font-weight:900; color:var(--green);">${wS}</div>
+        <div style="font-size:13px; color:var(--text-muted); margin:8px 0;">${t('vs')}</div>
+        <div style="font-weight:700; color:var(--text-muted);">${lP.join(' & ')}</div>
+        <div style="font-size:28px; font-weight:900; color:var(--text-muted);">${lS}</div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
+        <div class="stat-box"><div class="stat-num">${totalHands}</div><div class="stat-lbl">${t('totalHands')}</div></div>
+        <div class="stat-box"><div class="stat-num">${Math.abs(wS-lS)}</div><div class="stat-lbl">${t('scoreDiff')}</div></div>
+        <div class="stat-box"><div class="stat-num">${gameState.target}</div><div class="stat-lbl">${t('finalTarget')}</div></div>
+        <div class="stat-box" style="font-size:12px;"><div class="stat-num" style="font-size:14px;">${gameState.place}</div><div class="stat-lbl">${t('place')}</div></div>
+      </div>
+      <div style="background:rgba(245,166,35,.08); border:1px solid rgba(245,166,35,.2); border-radius:10px; padding:10px; margin-bottom:16px; font-size:12px; color:var(--gold);">
+        ✍️ ${t('recordedBy')} ${currentUser.displayName} | ${currentUser.phone}
+      </div>
+      <button onclick="saveGameNow()" class="btn-primary" style="width:100%; margin-bottom:10px;">${t('saveGameBtn')}</button>
+      <button onclick="closeSummary()" class="btn-ghost" style="width:100%;">${t('backToGame')}</button>
+    </div>
+  `;
+  document.getElementById('summary-modal').style.display = 'block';
+}
+
+function closeSummary() { document.getElementById('summary-modal').style.display = 'none'; }
+
+async function saveGameNow() {
+  closeSummary();
+  const btn = document.getElementById('finish-btn');
+  btn.textContent = currentLang==='en'?'Saving...':'در حال ذخیره...';
+  btn.disabled = true;
+
+  const gameData = {
+    timestamp:     Date.now(),
+    date:          gameState.date,
+    time:          gameState.time,
+    place:         gameState.place,
+    teamAPlayers:  gameState.teamA.players.join(', '),
+    teamAScore:    gameState.teamA.score,
+    teamAHistory:  gameState.teamA.history,
+    teamBPlayers:  gameState.teamB.players.join(', '),
+    teamBScore:    gameState.teamB.score,
+    teamBHistory:  gameState.teamB.history,
+    winner:        gameState.winner,
+    recorderName:  currentUser.displayName,
+    recorderPhone: currentUser.phone,
+    recorderUid:   currentUser.uid,
+    finalTarget:   gameState.target,
+    status:        'Finished'
+  };
+
+  try {
+    await firestoreAdd('games', gameData);
+    localStorage.removeItem('penak_pending_sync');
+    document.getElementById('sync-status').style.display = 'none';
+    invalidateHistoryCache();
+    showNotification(currentLang==='en'?'✅ Game saved!':'✅ بازی ذخیره شد!','success');
+    btn.textContent = t('homeBtn');
+    btn.disabled = false;
+    btn.onclick = goHome;
+  } catch(e) {
+    localStorage.setItem('penak_pending_sync','true');
+    document.getElementById('sync-status').style.display = 'block';
+    showNotification(currentLang==='en'?'❌ Save failed, will retry':'❌ ذخیره ناموفق، دوباره تلاش کنید','error');
+    btn.textContent = t('saveGame'); btn.disabled = false;
+  }
+}
+
+function goHome() {
+  resetGame(true);
+  const btn = document.getElementById('finish-btn');
+  btn.onclick = finishGame; btn.textContent = t('saveGame');
+}
+
+function resetGame(skipConfirm = false) {
+  if (gameState.active && !skipConfirm && !confirm(currentLang==='en'?'Cancel game?':'لغو بازی؟')) return;
+  gameState.active = false; gameState.target = 204;
+  gameState.teamA = { players:[], score:0, history:[], handsPlayed:0 };
+  gameState.teamB = { players:[], score:0, history:[], handsPlayed:0 };
+  gameState.winner = null; gameState.signA = '+'; gameState.signB = '+';
+  resetVisuals();
+  document.getElementById('game-panel').style.display  = 'none';
+  document.getElementById('setup-panel').style.display = 'block';
+  const btn = document.getElementById('finish-btn');
+  btn.disabled = false; btn.textContent = t('saveGame');
+  btn.style.display = 'none'; btn.onclick = finishGame;
+  selectedPlayers.teamA = []; selectedPlayers.teamB = [];
+  renderSavedPlayers(); updateTeamDisplays(); clearPlaceSelection();
+  document.getElementById('place').value = '';
+  // Reset sign buttons
+  ['a','b'].forEach(t2 => {
+    const b = document.getElementById(`sign-${t2}`);
+    b.textContent = '+'; b.classList.remove('negative');
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// HISTORY
+// ════════════════════════════════════════════════════════════
+function loadHistory(force = false) {
+  const list = document.getElementById('history-list');
+  list.innerHTML = `<div style="text-align:center; padding:40px 0; color:var(--text-muted);">⏳ ${currentLang==='en'?'Loading...':'در حال بارگذاری...'}</div>`;
+  fetchHistory(force).then(data => {
+    list.innerHTML = '';
+    if (!data.length) {
+      list.innerHTML = `<div style="text-align:center; padding:40px 0; color:var(--text-muted);"><div style="font-size:48px; margin-bottom:12px;">📭</div><p style="font-size:13px;">${t('noData')}</p></div>`;
+      return;
+    }
+    [...data].reverse().forEach((match, idx) => {
+      const isAWinner = match.winner && match.teamA.players.split(',').some(p => match.winner.includes(p.trim()));
+      const card = document.createElement('div');
+      card.className = 'card fade-up';
+      card.style.cssText = `padding:14px; margin-bottom:12px; animation-delay:${idx*0.04}s;`;
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:10px;">
+          <div style="font-size:11px; color:var(--text-muted);">
+            ${match.date} · ${match.time}
+            <div style="margin-top:2px;">📍 ${match.place}</div>
+            ${match.recorder ? `<div style="margin-top:2px; color:var(--gold);">✍️ ${match.recorder}</div>` : ''}
+          </div>
+          <span style="font-size:20px;">🃏</span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div style="padding:10px; border-radius:10px; border:1.5px solid ${isAWinner?'var(--green)':'var(--border)'}; background:${isAWinner?'rgba(0,217,163,.08)':'var(--bg-surface)'};">
+            <div style="font-size:11px; font-weight:700; color:${isAWinner?'var(--green)':'var(--text-muted)'}; margin-bottom:4px;">${match.teamA.players} ${isAWinner?'🏆':''}</div>
+            <div style="font-size:28px; font-weight:900; color:${isAWinner?'var(--green)':'var(--text-muted)'};">${match.teamA.score}</div>
+          </div>
+          <div style="padding:10px; border-radius:10px; border:1.5px solid ${!isAWinner?'var(--green)':'var(--border)'}; background:${!isAWinner?'rgba(0,217,163,.08)':'var(--bg-surface)'};">
+            <div style="font-size:11px; font-weight:700; color:${!isAWinner?'var(--green)':'var(--text-muted)'}; margin-bottom:4px;">${match.teamB.players} ${!isAWinner?'🏆':''}</div>
+            <div style="font-size:28px; font-weight:900; color:${!isAWinner?'var(--green)':'var(--text-muted)'};">${match.teamB.score}</div>
+          </div>
+        </div>
+      `;
+      list.appendChild(card);
+    });
+  }).catch(e => {
+    list.innerHTML = `<div style="color:var(--accent); padding:16px; border:1px solid rgba(233,69,96,.3); border-radius:10px; font-size:13px;">❌ ${e.message}</div>`;
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// STATS
+// ════════════════════════════════════════════════════════════
+function calculateStats() {
+  const content = document.getElementById('stats-content');
+  content.innerHTML = `<div style="text-align:center; padding:40px 0; color:var(--text-muted);">⏳ ${currentLang==='en'?'Calculating...':'محاسبه...'}</div>`;
+
+  fetchHistory().then(data => {
+    if (!data.length) {
+      content.innerHTML = `<div style="text-align:center; padding:40px 0; color:var(--text-muted);"><div style="font-size:48px; margin-bottom:12px;">📊</div><p>${t('noData')}</p></div>`;
+      return;
+    }
+
+    const playerStats = {};
+    const partnerships = {};
+
+    data.forEach(match => {
+      const teams = [
+        { team: match.teamA, isWinner: match.winner && match.teamA.players.split(',').some(p => match.winner.includes(p.trim())), history: match.teamAHistory || [] },
+        { team: match.teamB, isWinner: match.winner && match.teamB.players.split(',').some(p => match.winner.includes(p.trim())), history: match.teamBHistory || [] }
+      ];
+      teams.forEach(({ team, isWinner, history }) => {
+        const players = team.players.split(',').map(p => p.trim()).filter(p => p);
+        players.forEach(player => {
+          if (!playerStats[player]) playerStats[player] = {
+            wins:0, losses:0, totalScore:0, winScores:[], lossScores:[],
+            games:0, recentGames:[], allGames:[], nightGames:0
+          };
+          const ps = playerStats[player];
+          if (isWinner) { ps.wins++; ps.winScores.push(team.score); }
+          else { ps.losses++; ps.lossScores.push(team.score); }
+          ps.totalScore += team.score; ps.games++;
+          ps.recentGames.push({ win: isWinner, score: team.score, date: match.date, time: match.time });
+          ps.allGames.push({ win: isWinner, score: team.score, oppScore: isWinner ? (match.teamA.players===team.players?match.teamB.score:match.teamA.score) : 0, date: match.date, time: match.time, historyArr: history });
+          const hr = parseInt((match.time||'00:00').split(':')[0]);
+          if (hr >= 22 || hr < 6) ps.nightGames++;
+        });
+        // Partnership
+        if (players.length === 2) {
+          const key = players.slice().sort().join(' & ');
+          if (!partnerships[key]) partnerships[key] = { wins:0, losses:0, games:0 };
+          if (isWinner) partnerships[key].wins++; else partnerships[key].losses++;
+          partnerships[key].games++;
         }
-
-        function invalidateHistoryCache() {
-            _historyCache = null;
-            _historyFetchPromise = null;
-        }
-
-        // Player management
-        let savedPlayers = [];
-        let savedPlaces = [];
-        let selectedPlayers = {
-            teamA: [],
-            teamB: []
-        };
-
-        // Game State
-        let gameState = {
-            active: false,
-            date: "", time: "", place: "",
-            target: 204,
-            teamA: { players: [], score: 0, history: [] },
-            teamB: { players: [], score: 0, history: [] },
-            winner: null
-        };
-
-        // ============================================
-        // CONFIG — load players & places from Sheet
-        // ============================================
-        let _configCache = null;
-        let _configFetchPromise = null;
-
-        function fetchConfig(forceRefresh = false) {
-            if (!forceRefresh && _configCache !== null) {
-                return Promise.resolve(_configCache);
-            }
-            if (_configFetchPromise) return _configFetchPromise;
-            _configFetchPromise = fetch(GOOGLE_SCRIPT_URL + '?type=config')
-                .then(r => r.json())
-                .then(data => {
-                    _configCache = data;
-                    _configFetchPromise = null;
-                    return data;
-                })
-                .catch(err => {
-                    _configFetchPromise = null;
-                    // Fallback to localStorage if network fails
-                    return {
-                        players: JSON.parse(localStorage.getItem('penak_players') || '[]'),
-                        locations: JSON.parse(localStorage.getItem('penak_places') || '[]')
-                    };
-                });
-            return _configFetchPromise;
-        }
-
-        function loadConfig() {
-            // Show whatever is in localStorage instantly while we fetch
-            const cachedPlayers = JSON.parse(localStorage.getItem('penak_players') || '[]');
-            const cachedPlaces  = JSON.parse(localStorage.getItem('penak_places')  || '[]');
-            if (cachedPlayers.length > 0) {
-                savedPlayers = cachedPlayers;
-                renderSavedPlayers();
-            }
-            if (cachedPlaces.length > 0) {
-                savedPlaces = cachedPlaces;
-                renderSavedPlaces();
-            }
-
-            // Then fetch fresh from Sheet
-            fetchConfig().then(data => {
-                if (data.players && data.players.length > 0) {
-                    savedPlayers = data.players;
-                    localStorage.setItem('penak_players', JSON.stringify(savedPlayers));
-                    renderSavedPlayers();
-                }
-                if (data.locations && data.locations.length > 0) {
-                    savedPlaces = data.locations;
-                    localStorage.setItem('penak_places', JSON.stringify(savedPlaces));
-                    renderSavedPlaces();
-                }
-            });
-        }
-
-        // Load saved data on startup
-        window.onload = function() {
-            loadConfig();
-            checkSyncStatus();
-        };
-
-        function checkSyncStatus() {
-            const pendingSync = localStorage.getItem('penak_pending_sync');
-            if(pendingSync === 'true') {
-                document.getElementById('sync-status').classList.remove('hidden');
-            }
-        }
-
-        function retrySyncNow() {
-            showNotification("🔄 در حال تلاش مجدد...", "info");
-            
-            // Force a fresh fetch to test connection
-            fetchHistory(true)
-                .then(data => {
-                    localStorage.removeItem('penak_pending_sync');
-                    document.getElementById('sync-status').classList.add('hidden');
-                    showNotification("✅ همگام‌سازی موفق!", "success");
-                })
-                .catch(err => {
-                    showNotification("❌ خطا در اتصال", "error");
-                });
-        }
-
-        // Player Management Functions
-        function savePlayers() {
-            localStorage.setItem('penak_players', JSON.stringify(savedPlayers));
-        }
-
-        function savePlaces() {
-            localStorage.setItem('penak_places', JSON.stringify(savedPlaces));
-        }
-
-        function syncConfigToSheet() {
-            // Fire-and-forget: push updated players/places back to Config sheet
-            fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify({
-                    type: 'config',
-                    players: savedPlayers,
-                    locations: savedPlaces
-                })
-            }).catch(() => {}); // silent fail — localStorage is the fallback
-            // Invalidate config cache so next fetch gets fresh data
-            _configCache = null;
-        }
-
-        function addPlace(place) {
-            if(!place || place.trim() === '') return;
-            place = place.trim();
-            
-            const index = savedPlaces.indexOf(place);
-            if(index > -1) savedPlaces.splice(index, 1);
-            
-            savedPlaces.unshift(place);
-            if(savedPlaces.length > 20) savedPlaces = savedPlaces.slice(0, 20);
-            
-            savePlaces();
-            syncConfigToSheet();
-            updatePlaceDatalist();
-        }
-
-        function updatePlaceDatalist() {
-            renderSavedPlaces();
-        }
-
-        function renderSavedPlaces() {
-            const container = document.getElementById('saved-places');
-            container.innerHTML = '';
-            
-            if(savedPlaces.length === 0) {
-                container.innerHTML = '<div class="col-span-2 text-center text-gray-400 text-xs py-4">هنوز مکانی ثبت نشده</div>';
-                return;
-            }
-            
-            savedPlaces.forEach(place => {
-                const div = document.createElement('div');
-                div.className = 'touch-btn p-3 rounded-lg border-2 border-gray-200 bg-white text-center text-sm font-bold text-gray-700 hover:border-blue-300';
-                div.textContent = place;
-                div.onclick = () => selectPlace(place);
-                container.appendChild(div);
-            });
-        }
-
-        function selectPlace(place) {
-            document.getElementById('place').value = place;
-            document.getElementById('selected-place-text').textContent = place;
-            document.getElementById('selected-place-display').classList.remove('hidden');
-            document.getElementById('custom-place-container').classList.add('hidden');
-            document.getElementById('saved-places').classList.add('hidden');
-            document.getElementById('add-place-btn').textContent = 'تغییر';
-        }
-
-        function clearPlaceSelection() {
-            document.getElementById('place').value = '';
-            document.getElementById('selected-place-display').classList.add('hidden');
-            document.getElementById('saved-places').classList.remove('hidden');
-            document.getElementById('add-place-btn').textContent = '+ جدید';
-        }
-
-        function togglePlaceInput() {
-            const customContainer = document.getElementById('custom-place-container');
-            const savedPlacesDiv = document.getElementById('saved-places');
-            const selectedDisplay = document.getElementById('selected-place-display');
-            const btn = document.getElementById('add-place-btn');
-            
-            if(customContainer.classList.contains('hidden')) {
-                // Show custom input
-                customContainer.classList.remove('hidden');
-                savedPlacesDiv.classList.add('hidden');
-                selectedDisplay.classList.add('hidden');
-                document.getElementById('place').value = '';
-                document.getElementById('place').focus();
-                btn.textContent = 'لغو';
-            } else {
-                // Hide custom input
-                customContainer.classList.add('hidden');
-                savedPlacesDiv.classList.remove('hidden');
-                btn.textContent = '+ جدید';
-            }
-        }
-
-        function renderSavedPlayers() {
-            const container = document.getElementById('saved-players');
-            container.innerHTML = '';
-            
-            if(savedPlayers.length === 0) {
-                container.innerHTML = '<div class="col-span-2 text-center text-gray-400 text-xs py-4">هنوز بازیکنی ثبت نشده</div>';
-                return;
-            }
-            
-            savedPlayers.forEach(player => {
-                const isSelectedA = selectedPlayers.teamA.includes(player);
-                const isSelectedB = selectedPlayers.teamB.includes(player);
-                
-                const div = document.createElement('div');
-                div.className = `player-option touch-btn p-3 rounded-lg border-2 text-center text-sm font-bold relative ${
-                    isSelectedA ? 'border-blue-500 bg-blue-600 text-white' : 
-                    isSelectedB ? 'border-red-500 bg-red-600 text-white' : 
-                    'border-gray-200 bg-white text-gray-700'
-                }`;
-                
-                // Add team indicator icon
-                let teamIcon = '';
-                if(isSelectedA) {
-                    teamIcon = '<span class="absolute top-1 right-1 text-xs">🔵</span>';
-                } else if(isSelectedB) {
-                    teamIcon = '<span class="absolute top-1 right-1 text-xs">🔴</span>';
-                }
-                
-                div.innerHTML = teamIcon + player;
-                div.onclick = () => togglePlayerSelection(player);
-                container.appendChild(div);
-            });
-        }
-
-        function togglePlayerSelection(player) {
-            const isInA = selectedPlayers.teamA.includes(player);
-            const isInB = selectedPlayers.teamB.includes(player);
-            
-            if(!isInA && !isInB) {
-                // Not selected -> Add to Team A
-                selectedPlayers.teamA.push(player);
-            } else if(isInA) {
-                // In Team A -> Move to Team B
-                selectedPlayers.teamA = selectedPlayers.teamA.filter(p => p !== player);
-                selectedPlayers.teamB.push(player);
-            } else if(isInB) {
-                // In Team B -> Unselect
-                selectedPlayers.teamB = selectedPlayers.teamB.filter(p => p !== player);
-            }
-            
-            renderSavedPlayers();
-            updateTeamDisplays();
-        }
-
-        function updateTeamDisplays() {
-            const teamADiv = document.getElementById('team-a-players');
-            const teamBDiv = document.getElementById('team-b-players');
-            
-            teamADiv.innerHTML = selectedPlayers.teamA.length === 0 ? 
-                '<div class="text-gray-400 text-xs text-center py-4">بازیکنان را انتخاب کنید</div>' :
-                selectedPlayers.teamA.map(p => `
-                    <div class="bg-white p-2 rounded-lg text-xs font-bold text-blue-800 text-center border border-blue-200">
-                        ${p}
-                    </div>
-                `).join('');
-            
-            teamBDiv.innerHTML = selectedPlayers.teamB.length === 0 ? 
-                '<div class="text-gray-400 text-xs text-center py-4">بازیکنان را انتخاب کنید</div>' :
-                selectedPlayers.teamB.map(p => `
-                    <div class="bg-white p-2 rounded-lg text-xs font-bold text-red-800 text-center border border-red-200">
-                        ${p}
-                    </div>
-                `).join('');
-        }
-
-        function openAddPlayer() {
-            document.getElementById('add-player-sheet').classList.add('open');
-            document.getElementById('overlay').classList.add('show');
-            document.getElementById('new-player-name').value = '';
-            setTimeout(() => document.getElementById('new-player-name').focus(), 300);
-        }
-
-        function closeBottomSheet() {
-            document.getElementById('add-player-sheet').classList.remove('open');
-            document.getElementById('overlay').classList.remove('show');
-        }
-
-        function saveNewPlayer() {
-            const name = document.getElementById('new-player-name').value.trim();
-            if(!name) {
-                showNotification("⚠️ لطفاً نام بازیکن را وارد کنید", "warning");
-                return;
-            }
-            
-            if(savedPlayers.includes(name)) {
-                showNotification("⚠️ این بازیکن قبلاً ثبت شده", "warning");
-                return;
-            }
-            
-            savedPlayers.unshift(name);
-            savePlayers();
-            syncConfigToSheet();
-            renderSavedPlayers();
-            closeBottomSheet();
-            showNotification("✅ بازیکن با موفقیت اضافه شد", "success");
-        }
-
-        // Tab switching
-        function switchTab(tab) {
-            ['tab-game', 'tab-stats', 'tab-history'].forEach(id => {
-                document.getElementById(id).classList.remove('active');
-            });
-            ['view-game', 'view-stats', 'view-history'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-            });
-
-            if(tab === 'game') {
-                document.getElementById('tab-game').classList.add('active');
-                document.getElementById('view-game').classList.remove('hidden');
-            } else if(tab === 'stats') {
-                document.getElementById('tab-stats').classList.add('active');
-                document.getElementById('view-stats').classList.remove('hidden');
-                calculateStats();
-            } else {
-                document.getElementById('tab-history').classList.add('active');
-                document.getElementById('view-history').classList.remove('hidden');
-                loadHistory();
-            }
-        }
-
-        // Game Functions
-        function startGame() {
-            let place = document.getElementById('place').value.trim();
-            
-            // If custom input is shown and has value, use it
-            if(document.getElementById('custom-place-container').classList.contains('hidden') === false && place) {
-                // Add the new place to saved places
-                addPlace(place);
-            }
-            
-            if(!place) {
-                showNotification("⚠️ لطفاً مکان بازی را انتخاب یا وارد کنید", "warning");
-                return;
-            }
-            
-            if(selectedPlayers.teamA.length === 0 || selectedPlayers.teamB.length === 0) {
-                showNotification("⚠️ لطفاً بازیکنان هر دو تیم را انتخاب کنید", "warning");
-                return;
-            }
-
-            const now = new Date();
-            
-            // Fix: Use manual formatting to avoid timezone issues
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            
-            gameState.date = `${year}/${month}/${day}`;
-            gameState.time = `${hours}:${minutes}`;
-            
-            gameState.place = place;
-            gameState.teamA.players = [...selectedPlayers.teamA];
-            gameState.teamB.players = [...selectedPlayers.teamB];
-            gameState.active = true;
-            gameState.target = 204;
-            gameState.teamA.score = 0;
-            gameState.teamB.score = 0;
-            gameState.teamA.history = [];
-            gameState.teamB.history = [];
-            gameState.winner = null;
-
-            document.getElementById('display-date').innerText = gameState.date + " " + gameState.time;
-            document.getElementById('display-place').innerText = "📍 " + gameState.place;
-            document.getElementById('disp-nameA').innerText = selectedPlayers.teamA.join(', ');
-            document.getElementById('disp-nameB').innerText = selectedPlayers.teamB.join(', ');
-            
-            document.getElementById('setup-panel').classList.add('hidden');
-            document.getElementById('game-panel').classList.remove('hidden');
-            
-            resetVisuals();
-            showNotification("✅ بازی شروع شد", "success");
-        }
-
-        function quickScore(team, points) {
-            if(!gameState.active) return;
-            
-            gameState[`team${team}`].score += points;
-            gameState[`team${team}`].history.push(points);
-
-            const scoreElement = document.getElementById(`score${team}`);
-            scoreElement.innerText = gameState[`team${team}`].score;
-            scoreElement.classList.add('score-update');
-            setTimeout(() => scoreElement.classList.remove('score-update'), 400);
-
-            updateLogs();
-            checkWinCondition();
-        }
-
-        function addScore(team) {
-            if(!gameState.active) return;
-            const inputId = team === 'A' ? 'addA' : 'addB';
-            const input = document.getElementById(inputId);
-            const val = parseInt(input.value);
-
-            if(isNaN(val) || val === 0) { 
-                showNotification("⚠️ لطفاً عدد معتبر وارد کنید", "warning");
-                return; 
-            }
-
-            gameState[`team${team}`].score += val;
-            gameState[`team${team}`].history.push(val);
-            input.value = "";
-
-            const scoreElement = document.getElementById(`score${team}`);
-            scoreElement.innerText = gameState[`team${team}`].score;
-            scoreElement.classList.add('score-update');
-            setTimeout(() => scoreElement.classList.remove('score-update'), 400);
-
-            updateLogs();
-            checkWinCondition();
-        }
-
-        function undoScore(team) {
-            const history = gameState[`team${team}`].history;
-            if(history.length === 0) {
-                showNotification("⚠️ هیچ دستی وجود ندارد", "warning");
-                return;
-            }
-            
-            const lastVal = history.pop();
-            gameState[`team${team}`].score -= lastVal;
-            if(gameState[`team${team}`].score < 0) gameState[`team${team}`].score = 0;
-
-            document.getElementById(`score${team}`).innerText = gameState[`team${team}`].score;
-            updateLogs();
-            
-            if(gameState.winner) {
-                gameState.winner = null;
-                document.getElementById('finish-btn').classList.add('hidden');
-                document.getElementById('status-bar').innerText = "🎯 هدف: " + gameState.target;
-                document.getElementById('status-bar').className = "bg-gradient-to-r from-yellow-100 to-yellow-200 text-center py-3 text-yellow-900 font-bold border-b";
-                document.getElementById('card-a').classList.remove('winner-glow');
-                document.getElementById('card-b').classList.remove('winner-glow');
-            }
-            
-            showNotification("↩️ حذف شد", "info");
-        }
-
-        function updateLogs() {
-            ['A', 'B'].forEach(team => {
-                const log = document.getElementById(`log-${team.toLowerCase()}`);
-                log.innerHTML = '';
-                
-                if(gameState[`team${team}`].history.length === 0) {
-                    log.innerHTML = '<div class="text-gray-300 italic text-xs">خالی</div>';
-                } else {
-                    gameState[`team${team}`].history.forEach((score, idx) => {
-                        const colorClass = team === 'A' ? 'text-blue-800' : 'text-red-800';
-                        const sign = score > 0 ? '+' : ''; 
-                        log.innerHTML += `<div class="log-item ${colorClass}"><span class="text-gray-400 text-xs">#${idx + 1}</span> ${sign}${score}</div>`;
-                    });
-                    log.scrollTop = log.scrollHeight;
-                }
-            });
-        }
-
-        function resetVisuals() {
-            document.getElementById('scoreA').innerText = "0";
-            document.getElementById('scoreB').innerText = "0";
-            document.getElementById('status-bar').innerText = "🎯 هدف: 204";
-            document.getElementById('status-bar').className = "bg-gradient-to-r from-yellow-100 to-yellow-200 text-center py-3 text-yellow-900 font-bold border-b";
-            document.getElementById('card-a').classList.remove('winner-glow');
-            document.getElementById('card-b').classList.remove('winner-glow');
-            document.getElementById('finish-btn').classList.add('hidden');
-            updateLogs();
-        }
-
-        function checkWinCondition() {
-            const sA = gameState.teamA.score;
-            const sB = gameState.teamB.score;
-            const target = gameState.target;
-            const statusBar = document.getElementById('status-bar');
-
-            let winner = null;
-            let loser = null;
-
-            if (sA >= target) { winner = 'A'; loser = 'B'; }
-            else if (sB >= target) { winner = 'B'; loser = 'A'; }
-
-            if (winner) {
-                const loserScore = gameState[`team${loser}`].score;
-                let gameFinished = false;
-                let message = "";
-
-                if (target === 204) {
-                    if (loserScore >= 200) {
-                        gameState.target = 306;
-                        message = "⚠️ هدف جدید: 306";
-                        statusBar.className = "bg-gradient-to-r from-orange-100 to-orange-200 text-center py-3 text-orange-900 font-bold border-b";
-                        showNotification(message, "warning");
-                    } else { gameFinished = true; }
-                } else if (target === 306) {
-                    if (loserScore >= 300) {
-                        gameState.target = 408;
-                        message = "⚠️ هدف جدید: 408";
-                        statusBar.className = "bg-gradient-to-r from-purple-100 to-purple-200 text-center py-3 text-purple-900 font-bold border-b";
-                        showNotification(message, "warning");
-                    } else { gameFinished = true; }
-                } else if (target === 408) {
-                    gameFinished = true;
-                }
-
-                if (gameFinished) {
-                    gameState.winner = gameState[`team${winner}`].players.join(', ');
-                    statusBar.innerText = "🏆 برنده: " + (winner === 'A' ? 'تیم آبی' : 'تیم قرمز');
-                    statusBar.className = "bg-gradient-to-r from-green-400 to-green-500 text-center py-3 text-white font-bold border-b";
-                    document.getElementById(`card-${winner.toLowerCase()}`).classList.add('winner-glow');
-                    document.getElementById('finish-btn').classList.remove('hidden');
-                    showNotification("🎉 بازی تمام شد!", "success");
-                } else {
-                    statusBar.innerText = message;
-                }
-            }
-        }
-
-        function finishGame() {
-            // Show game summary instead of immediately saving
-            showGameSummary();
-        }
-
-        function showGameSummary() {
-            const winnerTeam = gameState.winner === gameState.teamA.players.join(', ') ? 'A' : 'B';
-            const loserTeam = winnerTeam === 'A' ? 'B' : 'A';
-            
-            const winnerPlayers = gameState[`team${winnerTeam}`].players;
-            const loserPlayers = gameState[`team${loserTeam}`].players;
-            
-            const winnerScore = gameState[`team${winnerTeam}`].score;
-            const loserScore = gameState[`team${loserTeam}`].score;
-            
-            const totalHands = gameState.teamA.history.length + gameState.teamB.history.length;
-            const scoreDifference = Math.abs(winnerScore - loserScore);
-            
-            // Calculate MVP (highest scoring team's average contribution)
-            const teamColor = winnerTeam === 'A' ? 'blue' : 'red';
-            
-            const summaryHTML = `
-                <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" id="summary-modal">
-                    <div class="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-                        <!-- Header -->
-                        <div class="bg-gradient-to-r from-green-400 to-green-500 p-6 text-white text-center">
-                            <div class="text-5xl mb-2">🏆</div>
-                            <h2 class="text-2xl font-bold mb-1">بازی تمام شد!</h2>
-                            <p class="text-sm opacity-90">خلاصه نتایج</p>
-                        </div>
-                        
-                        <!-- Winner Section -->
-                        <div class="p-6 border-b">
-                            <div class="text-center mb-4">
-                                <div class="text-lg text-gray-600 mb-2">🥇 برنده</div>
-                                <div class="text-2xl font-bold text-green-600 mb-2">
-                                    ${winnerPlayers.join(' و ')}
-                                </div>
-                                <div class="text-5xl font-bold text-green-600">${winnerScore}</div>
-                            </div>
-                            
-                            <div class="text-center text-gray-500">
-                                <div class="text-sm mb-1">در مقابل</div>
-                                <div class="font-bold text-gray-700">${loserPlayers.join(' و ')}</div>
-                                <div class="text-2xl font-bold text-gray-400">${loserScore}</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Game Stats -->
-                        <div class="p-6 border-b bg-gray-50">
-                            <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
-                                <span>📊</span> آمار بازی
-                            </h3>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div class="bg-white p-3 rounded-lg border text-center">
-                                    <div class="text-2xl font-bold text-blue-600">${totalHands}</div>
-                                    <div class="text-xs text-gray-600">کل دست‌ها</div>
-                                </div>
-                                <div class="bg-white p-3 rounded-lg border text-center">
-                                    <div class="text-2xl font-bold text-purple-600">${scoreDifference}</div>
-                                    <div class="text-xs text-gray-600">اختلاف امتیاز</div>
-                                </div>
-                                <div class="bg-white p-3 rounded-lg border text-center">
-                                    <div class="text-2xl font-bold text-orange-600">${gameState.target}</div>
-                                    <div class="text-xs text-gray-600">هدف نهایی</div>
-                                </div>
-                                <div class="bg-white p-3 rounded-lg border text-center">
-                                    <div class="text-lg font-bold text-green-600">${gameState.place}</div>
-                                    <div class="text-xs text-gray-600">مکان</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Action Buttons -->
-                        <div class="p-6 space-y-3">
-                            <button onclick="saveGameNow()" 
-                                    class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-4 rounded-xl shadow-lg touch-btn">
-                                💾 ذخیره بازی
-                            </button>
-                            <button onclick="closeSummary()" 
-                                    class="w-full border-2 border-gray-300 text-gray-700 font-bold py-3 rounded-xl touch-btn">
-                                بازگشت به بازی
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            document.body.insertAdjacentHTML('beforeend', summaryHTML);
-        }
-
-        function closeSummary() {
-            const modal = document.getElementById('summary-modal');
-            if(modal) modal.remove();
-        }
-
-        function saveGameNow() {
-            closeSummary();
-            
-            const btn = document.getElementById('finish-btn');
-            btn.innerText = "در حال ذخیره...";
-            btn.disabled = true;
-
-            const data = {
-                date: gameState.date, 
-                time: gameState.time, 
-                place: gameState.place,
-                teamA: {
-                    name: "تیم A",
-                    players: gameState.teamA.players.join(', '),
-                    score: gameState.teamA.score,
-                    history: gameState.teamA.history
-                },
-                teamB: {
-                    name: "تیم B",
-                    players: gameState.teamB.players.join(', '),
-                    score: gameState.teamB.score,
-                    history: gameState.teamB.history
-                },
-                winner: gameState.winner
-            };
-
-            // Send data to Google Script
-            fetch(GOOGLE_SCRIPT_URL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "text/plain" },
-                body: JSON.stringify(data)
-            });
-
-            // Mark as syncing
-            localStorage.setItem('penak_pending_sync', 'true');
-
-            // Since we use no-cors, we can't wait for response
-            setTimeout(() => {
-                // Mark as synced (optimistic)
-                localStorage.removeItem('penak_pending_sync');
-                // Invalidate cache so History/Stats show the new game next open
-                invalidateHistoryCache();
-                showNotification("✅ بازی ذخیره شد!", "success");
-                
-                // Show home button
-                btn.innerText = "🏠 بازگشت به خانه";
-                btn.disabled = false;
-                btn.onclick = goHome;
-            }, 500);
-        }
-
-        function goHome() {
-            resetGame(true); // Skip confirmation
-            // Reset the finish button for next game
-            const btn = document.getElementById('finish-btn');
-            btn.onclick = finishGame;
-            btn.innerText = "💾 ذخیره";
-        }
-
-        function resetGame(skipConfirm = false) {
-            if(gameState.active && !skipConfirm && !confirm("لغو بازی؟")) {
-                return;
-            }
-            
-            gameState.active = false;
-            gameState.target = 204;
-            gameState.teamA.score = 0;
-            gameState.teamB.score = 0;
-            gameState.teamA.history = [];
-            gameState.teamB.history = [];
-            gameState.winner = null;
-
-            resetVisuals();
-            
-            document.getElementById('game-panel').classList.add('hidden');
-            document.getElementById('setup-panel').classList.remove('hidden');
-            
-            const btn = document.getElementById('finish-btn');
-            btn.disabled = false;
-            btn.innerText = "💾 ذخیره";
-            btn.classList.add('hidden');
-            btn.onclick = finishGame; // Reset to original function
-            
-            // Clear selections for new game
-            selectedPlayers.teamA = [];
-            selectedPlayers.teamB = [];
-            renderSavedPlayers();
-            updateTeamDisplays();
-            
-            // Reset place selection
-            clearPlaceSelection();
-            document.getElementById('place').value = '';
-        }
-
-        function loadHistory(forceRefresh = false) {
-            const list = document.getElementById('history-list');
-            list.innerHTML = '<div class="text-center text-gray-500 py-6 text-sm">⏳ در حال بارگذاری...</div>';
-
-            fetchHistory(forceRefresh)
-                .then(data => {
-                    list.innerHTML = ""; 
-                    
-                    if(data.error || data.length === 0) {
-                        list.innerHTML = '<div class="text-center text-gray-400 py-10"><div class="text-5xl mb-3">📭</div><p class="text-sm">خالی</p></div>';
-                        return;
-                    }
-
-                    data.reverse().forEach((match, index) => {
-                        const isTeamAWinner = match.winner && match.winner.includes(match.teamA.players.split(',')[0]);
-                        
-                        const card = `
-                            <div class="bg-white p-4 rounded-xl border-2 border-gray-100 shadow-sm slide-up" style="animation-delay: ${index * 0.05}s">
-                                <div class="flex justify-between items-start mb-3">
-                                    <div class="text-xs text-gray-400">
-                                        ${match.date} • ${match.time}
-                                        <div class="text-gray-600 mt-1">📍 ${match.place}</div>
-                                    </div>
-                                    <div class="text-xl">🃏</div>
-                                </div>
-                                
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div class="p-3 rounded-lg border-2 ${isTeamAWinner ? 'border-green-400 bg-green-50' : 'border-gray-200 bg-gray-50'}">
-                                        <div class="flex justify-between items-start mb-1">
-                                            <div class="text-xs font-bold ${isTeamAWinner ? 'text-green-800' : 'text-gray-600'}">
-                                                ${match.teamA.players}
-                                            </div>
-                                            ${isTeamAWinner ? '<span class="text-lg">🏆</span>' : ''}
-                                        </div>
-                                        <div class="text-3xl font-bold ${isTeamAWinner ? 'text-green-600' : 'text-gray-400'}">${match.teamA.score}</div>
-                                    </div>
-                                    
-                                    <div class="p-3 rounded-lg border-2 ${!isTeamAWinner ? 'border-green-400 bg-green-50' : 'border-gray-200 bg-gray-50'}">
-                                        <div class="flex justify-between items-start mb-1">
-                                            <div class="text-xs font-bold ${!isTeamAWinner ? 'text-green-800' : 'text-gray-600'}">
-                                                ${match.teamB.players}
-                                            </div>
-                                            ${!isTeamAWinner ? '<span class="text-lg">🏆</span>' : ''}
-                                        </div>
-                                        <div class="text-3xl font-bold ${!isTeamAWinner ? 'text-green-600' : 'text-gray-400'}">${match.teamB.score}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                        list.innerHTML += card;
-                    });
-                })
-                .catch(err => {
-                    list.innerHTML = `<div class="text-center text-red-500 p-4 border rounded bg-red-50 text-sm">❌ ${err.message}</div>`;
-                });
-        }
-
-        function calculateStats() {
-            const content = document.getElementById('stats-content');
-            content.innerHTML = '<div class="text-center text-gray-500 py-6 text-sm">⏳ محاسبه...</div>';
-
-            fetchHistory()
-                .then(data => {
-                    if(data.error || data.length === 0) {
-                        content.innerHTML = '<div class="text-center text-gray-400 py-10"><div class="text-5xl mb-3">📊</div><p class="text-sm">داده‌ای موجود نیست</p></div>';
-                        return;
-                    }
-
-                    const playerStats = {};
-                    const partnerships = {};
-                    const playerStreaks = {};
-
-                    // Process all games
-                    data.forEach((match, index) => {
-                        [match.teamA, match.teamB].forEach(team => {
-                            const isWinner = match.winner && match.winner.includes(team.players.split(',')[0]);
-                            const players = team.players.split(',').map(p => p.trim()).filter(p => p);
-                            
-                            // Individual player stats
-                            players.forEach(player => {
-                                if(!playerStats[player]) {
-                                    playerStats[player] = { wins: 0, losses: 0, totalScore: 0, games: 0, recentGames: [] };
-                                }
-                                if(isWinner) playerStats[player].wins++;
-                                else playerStats[player].losses++;
-                                playerStats[player].totalScore += team.score;
-                                playerStats[player].games++;
-                                playerStats[player].recentGames.push(isWinner ? 1 : 0);
-                            });
-                            
-                            // Partnership stats (for 2-player teams)
-                            if(players.length === 2) {
-                                const partnership = players.sort().join(' & ');
-                                if(!partnerships[partnership]) {
-                                    partnerships[partnership] = { wins: 0, losses: 0, games: 0 };
-                                }
-                                if(isWinner) partnerships[partnership].wins++;
-                                else partnerships[partnership].losses++;
-                                partnerships[partnership].games++;
-                            }
-                        });
-                    });
-
-                    // Calculate win streaks (last 10 games)
-                    Object.entries(playerStats).forEach(([player, stats]) => {
-                        const recent = stats.recentGames.slice(-10);
-                        let currentStreak = 0;
-                        let maxStreak = 0;
-                        
-                        for(let i = recent.length - 1; i >= 0; i--) {
-                            if(recent[i] === 1) {
-                                currentStreak++;
-                                maxStreak = Math.max(maxStreak, currentStreak);
-                            } else {
-                                break;
-                            }
-                        }
-                        
-                        playerStreaks[player] = { current: currentStreak, max: maxStreak };
-                    });
-
-                    // Calculate ranking score
-                    const sortedPlayers = Object.entries(playerStats)
-                        .map(([name, stats]) => {
-                            const winRate = stats.wins / stats.games;
-                            const experienceWeight = Math.min(stats.games, 10) / 10;
-                            const rankingScore = winRate * experienceWeight;
-                            return [name, stats, rankingScore];
-                        })
-                        .sort((a, b) => {
-                            if(b[2] !== a[2]) return b[2] - a[2];
-                            return b[1].games - a[1].games;
-                        });
-
-                    // Sort partnerships by win rate
-                    const sortedPartnerships = Object.entries(partnerships)
-                        .map(([pair, stats]) => {
-                            const winRate = stats.wins / stats.games;
-                            return [pair, stats, winRate];
-                        })
-                        .filter(([pair, stats]) => stats.games >= 3) // At least 3 games together
-                        .sort((a, b) => b[2] - a[2]);
-
-                    let html = `
-                        <!-- Win Streaks -->
-                        <div class="bg-gradient-to-r from-orange-500 to-red-500 p-4 rounded-xl shadow-lg mb-4 text-white">
-                            <h3 class="text-lg font-bold mb-3 flex items-center gap-2">
-                                🔥 نوار برد فعال
-                            </h3>
-                            <div class="space-y-2">
-                                ${Object.entries(playerStreaks)
-                                    .filter(([name, streak]) => streak.current > 0)
-                                    .sort((a, b) => b[1].current - a[1].current)
-                                    .slice(0, 5)
-                                    .map(([name, streak]) => `
-                                        <div class="bg-white bg-opacity-20 p-3 rounded-lg flex justify-between items-center">
-                                            <span class="font-bold">${name}</span>
-                                            <span class="text-2xl font-bold">${streak.current} 🔥</span>
-                                        </div>
-                                    `).join('') || '<div class="text-center text-white text-sm opacity-75">هیچ نوار برد فعالی وجود ندارد</div>'}
-                            </div>
-                        </div>
-
-                        <!-- Best Partnerships -->
-                        <div class="bg-white p-4 rounded-xl shadow-lg border-2 border-green-100 mb-4">
-                            <h3 class="text-lg font-bold text-green-800 mb-3 flex items-center gap-2">
-                                🤝 بهترین جفت‌ها
-                            </h3>
-                            <div class="space-y-2">
-                                ${sortedPartnerships.slice(0, 5).map(([pair, stats, winRate], idx) => `
-                                    <div class="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-green-50 to-white border border-green-100">
-                                        <div class="text-lg font-bold text-green-600 w-6">#${idx + 1}</div>
-                                        <div class="flex-1">
-                                            <div class="font-bold text-sm">${pair}</div>
-                                            <div class="text-xs text-gray-600">
-                                                ${stats.games} بازی • ${stats.wins}W-${stats.losses}L
-                                            </div>
-                                        </div>
-                                        <div class="text-xl font-bold text-green-600">${(winRate * 100).toFixed(0)}%</div>
-                                    </div>
-                                `).join('') || '<div class="text-center text-gray-400 text-sm py-4">حداقل 3 بازی با هم لازم است</div>'}
-                            </div>
-                        </div>
-
-                        <!-- Player Rankings -->
-                        <div class="bg-white p-4 rounded-xl shadow-lg border-2 border-purple-100 mb-4">
-                            <h3 class="text-lg font-bold text-purple-800 mb-3 flex items-center gap-2">
-                                👑 رتبه‌بندی بازیکنان
-                            </h3>
-                            <div class="text-xs text-gray-500 mb-3 bg-blue-50 p-2 rounded">
-                                💡 رتبه‌بندی بر اساس ترکیب درصد برد و تجربه (حداقل 10 بازی برای امتیاز کامل)
-                            </div>
-                            <div class="space-y-2">
-                                ${sortedPlayers.map(([name, stats, rankingScore], idx) => {
-                                    const winRate = ((stats.wins / stats.games) * 100).toFixed(0);
-                                    const avgScore = (stats.totalScore / stats.games).toFixed(0);
-                                    const experienceLevel = stats.games >= 10 ? '⭐' : stats.games >= 5 ? '📈' : '🆕';
-                                    const streak = playerStreaks[name];
-                                    const streakBadge = streak && streak.current > 2 ? `<span class="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded">🔥${streak.current}</span>` : '';
-                                    
-                                    return `
-                                        <div class="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-purple-50 to-white border border-purple-100">
-                                            <div class="text-lg font-bold text-purple-600 w-6">#${idx + 1}</div>
-                                            <div class="flex-1">
-                                                <div class="font-bold text-sm flex items-center gap-1 flex-wrap">
-                                                    ${name} ${experienceLevel} ${streakBadge}
-                                                </div>
-                                                <div class="text-xs text-gray-600">
-                                                    ${stats.games} بازی • ${stats.wins}W-${stats.losses}L
-                                                </div>
-                                            </div>
-                                            <div class="text-right">
-                                                <div class="text-xl font-bold text-green-600">${winRate}%</div>
-                                                <div class="text-xs text-gray-500">~${avgScore}</div>
-                                            </div>
-                                        </div>
-                                    `;
-                                }).join('')}
-                            </div>
-                        </div>
-
-                        <!-- Team Balancing Suggestions -->
-                        ${generateBalancedTeams(playerStats)}
-
-                        <!-- Overall Stats -->
-                        <div class="grid grid-cols-3 gap-3">
-                            <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-4 rounded-xl text-white text-center">
-                                <div class="text-3xl font-bold">${data.length}</div>
-                                <div class="text-xs mt-1">بازی</div>
-                            </div>
-                            <div class="bg-gradient-to-br from-purple-500 to-purple-600 p-4 rounded-xl text-white text-center">
-                                <div class="text-3xl font-bold">${Object.keys(playerStats).length}</div>
-                                <div class="text-xs mt-1">بازیکن</div>
-                            </div>
-                            <div class="bg-gradient-to-br from-green-500 to-green-600 p-4 rounded-xl text-white text-center">
-                                <div class="text-2xl font-bold">${sortedPlayers[0] ? sortedPlayers[0][0] : '-'}</div>
-                                <div class="text-xs mt-1">برتر</div>
-                            </div>
-                        </div>
-                    `;
-
-                    content.innerHTML = html;
-                })
-                .catch(err => {
-                    content.innerHTML = `<div class="text-center text-red-500 p-4 border rounded bg-red-50 text-sm">❌ ${err.message}</div>`;
-                });
-        }
-
-        function generateBalancedTeams(playerStats) {
-            const players = Object.entries(playerStats)
-                .filter(([name, stats]) => stats.games >= 3) // At least 3 games
-                .sort((a, b) => (b[1].wins / b[1].games) - (a[1].wins / a[1].games));
-            
-            if(players.length < 4) {
-                return ''; // Not enough players for suggestions
-            }
-
-            // Simple balancing: alternate high and low ranked players
-            const balanced = [];
-            let teamA = [];
-            let teamB = [];
-            
-            for(let i = 0; i < Math.min(players.length, 6); i++) {
-                if(i % 2 === 0) {
-                    teamA.push(players[i][0]);
-                } else {
-                    teamB.push(players[i][0]);
-                }
-                
-                if(teamA.length === 2 && teamB.length === 2) {
-                    balanced.push({ teamA: [...teamA], teamB: [...teamB] });
-                    teamA = [];
-                    teamB = [];
-                }
-            }
-
-            if(balanced.length === 0) return '';
-
+      });
+    });
+
+    // Compute streaks
+    const streaks = {};
+    Object.entries(playerStats).forEach(([name, ps]) => {
+      let cur = 0, max = 0;
+      for (let i = ps.recentGames.length-1; i >= 0; i--) {
+        if (ps.recentGames[i].win) { cur++; max = Math.max(max,cur); } else break;
+      }
+      let allMax = 0, tmp = 0;
+      ps.recentGames.forEach(g => { if(g.win){tmp++;allMax=Math.max(allMax,tmp);}else{tmp=0;} });
+      streaks[name] = { current: cur, max: allMax };
+    });
+
+    // Sorted players by ranking score (Bayesian-inspired)
+    const sorted = Object.entries(playerStats).map(([name, ps]) => {
+      const wr = ps.wins / ps.games;
+      const exp = Math.min(ps.games, 15) / 15;
+      return [name, ps, wr * 0.7 + exp * 0.3];
+    }).sort((a,b) => b[2]!==a[2] ? b[2]-a[2] : b[1].games-a[1].games);
+
+    const sortedPartnerships = Object.entries(partnerships)
+      .map(([k,v]) => [k,v, v.wins/v.games])
+      .filter(([,v]) => v.games >= 3)
+      .sort((a,b) => b[2]-a[2]);
+
+    // Form guide as numbers
+    function formGuide(ps) {
+      return ps.recentGames.slice(-10).map(g =>
+        `<span class="form-dot ${g.win?'w':'l'}">${g.score}</span>`
+      ).join('');
+    }
+
+    const html = `
+      <!-- Overall -->
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px;">
+        <div class="stat-box"><div class="stat-num" style="color:var(--blue-team);">${data.length}</div><div class="stat-lbl">${t('gamesLbl')}</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:var(--gold);">${Object.keys(playerStats).length}</div><div class="stat-lbl">${t('playersLbl')}</div></div>
+        <div class="stat-box" style="overflow:hidden;"><div class="stat-num" style="font-size:14px; color:var(--green);">${sorted[0]?sorted[0][0]:'-'}</div><div class="stat-lbl">${t('topPlayer')}</div></div>
+      </div>
+
+      <!-- Active Streaks -->
+      <div class="card" style="padding:14px; margin-bottom:12px;">
+        <h3 style="font-weight:800; margin:0 0 12px; font-size:15px;">${t('activeStreaks')}</h3>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          ${Object.entries(streaks).filter(([,s]) => s.current>0).sort((a,b)=>b[1].current-a[1].current).slice(0,5).map(([name,s]) => `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:rgba(233,69,96,.08); border:1px solid rgba(233,69,96,.2); border-radius:10px;">
+              <span style="font-weight:700;">${name}</span>
+              <span style="font-size:18px; font-weight:900; color:var(--accent);">${s.current} 🔥</span>
+            </div>
+          `).join('') || `<div style="color:var(--text-muted); font-size:13px; text-align:center; padding:12px;">${t('noStreaks')}</div>`}
+        </div>
+      </div>
+
+      <!-- Rankings -->
+      <div class="card" style="padding:14px; margin-bottom:12px;">
+        <h3 style="font-weight:800; margin:0 0 6px; font-size:15px;">${t('rankings')}</h3>
+        <p style="font-size:11px; color:var(--text-muted); margin:0 0 12px;">${t('rankingHint')}</p>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          ${sorted.map(([name, ps, score], idx) => {
+            const wr = ((ps.wins/ps.games)*100).toFixed(0);
+            const exp = ps.games>=10?'⭐':ps.games>=5?'📈':'🆕';
+            const streak = streaks[name];
+            const stkBadge = streak&&streak.current>2?`<span style="background:rgba(233,69,96,.15);color:var(--accent);border-radius:10px;padding:2px 6px;font-size:10px;font-weight:700;">🔥${streak.current}</span>`:'';
             return `
-                <div class="bg-white p-4 rounded-xl shadow-lg border-2 border-blue-100 mb-4">
-                    <h3 class="text-lg font-bold text-blue-800 mb-3 flex items-center gap-2">
-                        ⚖️ پیشنهاد تیم متعادل
-                    </h3>
-                    <div class="text-xs text-gray-500 mb-3 bg-yellow-50 p-2 rounded">
-                        💡 بر اساس عملکرد گذشته بازیکنان
-                    </div>
-                    ${balanced.map((suggestion, idx) => `
-                        <div class="grid grid-cols-2 gap-3 mb-3 p-3 bg-gray-50 rounded-lg">
-                            <div class="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                                <div class="text-xs text-blue-600 font-bold mb-1">تیم A</div>
-                                ${suggestion.teamA.map(p => `<div class="text-sm font-bold text-blue-800">${p}</div>`).join('')}
-                            </div>
-                            <div class="bg-red-50 p-3 rounded-lg border border-red-200">
-                                <div class="text-xs text-red-600 font-bold mb-1">تیم B</div>
-                                ${suggestion.teamB.map(p => `<div class="text-sm font-bold text-red-800">${p}</div>`).join('')}
-                            </div>
-                        </div>
-                    `).join('')}
+              <div class="card-surface" style="padding:10px 12px; display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="openProfile('${name}')">
+                <div style="font-size:16px; font-weight:900; color:var(--gold); min-width:24px;">#${idx+1}</div>
+                <div style="flex:1;">
+                  <div style="font-weight:700; font-size:13px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">${name} ${exp} ${stkBadge}</div>
+                  <div style="font-size:11px; color:var(--text-muted);">${ps.games} ${t('gamesLbl')} · ${ps.wins}W-${ps.losses}L</div>
+                  <div style="margin-top:4px; display:flex; gap:2px; flex-wrap:wrap;">${formGuide(ps)}</div>
                 </div>
-            `;
-        }
-
-        // Notification System
-        function showNotification(message, type = 'info') {
-            const colors = {
-                success: 'from-green-500 to-green-600',
-                error: 'from-red-500 to-red-600',
-                warning: 'from-yellow-500 to-yellow-600',
-                info: 'from-blue-500 to-blue-600'
-            };
-
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r ${colors[type]} text-white px-5 py-3 rounded-xl shadow-2xl z-50 text-sm font-bold max-w-xs`;
-            notification.style.cssText = 'animation: slideDown 0.3s ease-out';
-            notification.textContent = message;
-
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                notification.style.animation = 'slideUp 0.3s ease-out';
-                setTimeout(() => notification.remove(), 300);
-            }, 2500);
-        }
-
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideDown {
-                from { transform: translate(-50%, -100px); opacity: 0; }
-                to { transform: translate(-50%, 0); opacity: 1; }
-            }
-            @keyframes slideUp {
-                from { transform: translate(-50%, 0); opacity: 1; }
-                to { transform: translate(-50%, -100px); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
-
-        // ============================================
-        // iOS FIX: Improve touch event handling
-        // ============================================
-        document.addEventListener('touchstart', function() {}, { passive: true });
-        
-        // Prevent zoom on double tap
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', function(event) {
-            const now = Date.now();
-            if (now - lastTouchEnd <= 300) {
-                event.preventDefault();
-            }
-            lastTouchEnd = now;
-        }, false);
-
-        // ============================================
-        // iOS FIX: Make sure buttons work with touch events
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add touch event support for all buttons
-            const buttons = document.querySelectorAll('button');
-            buttons.forEach(button => {
-                button.addEventListener('touchstart', function() {
-                    this.style.opacity = '0.7';
-                }, { passive: true });
-                
-                button.addEventListener('touchend', function() {
-                    this.style.opacity = '1';
-                }, { passive: true });
-            });
-        });
-
-        // ============================================
-        // PWA SERVICE WORKER REGISTRATION (iOS Compatible)
-        // ============================================
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js')
-                    .then((registration) => {
-                        console.log('✅ Service Worker registered:', registration.scope);
-                        
-                        // Check for updates
-                        registration.addEventListener('updatefound', () => {
-                            const newWorker = registration.installing;
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    console.log('🔄 New version available');
-                                    // Auto-update without prompting on iOS
-                                    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-                                        newWorker.postMessage({ type: 'SKIP_WAITING' });
-                                        setTimeout(() => window.location.reload(), 1000);
-                                    } else {
-                                        if (confirm('نسخه جدید موجود است! می‌خواهید به‌روزرسانی کنید؟')) {
-                                            newWorker.postMessage({ type: 'SKIP_WAITING' });
-                                            window.location.reload();
-                                        }
-                                    }
-                                }
-                            });
-                        });
-                    })
-                    .catch((error) => {
-                        console.log('ℹ️ Service Worker not available:', error);
-                        // Continue without service worker (iOS Safari web view might not support it)
-                    });
-            });
-        }
-
-        // ============================================
-        // PWA INSTALL PROMPT (Android only)
-        // ============================================
-        let deferredPrompt;
-        
-        // iOS doesn't support beforeinstallprompt, so only show on Android
-        if (!/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                
-                // Show install button after 5 seconds
-                setTimeout(() => {
-                    showInstallPrompt();
-                }, 5000);
-            });
-        }
-
-        function showInstallPrompt() {
-            if (!deferredPrompt) return;
-            
-            // Check if already installed
-            if (window.matchMedia('(display-mode: standalone)').matches) {
-                return;
-            }
-            
-            // Don't show if dismissed recently
-            const dismissed = localStorage.getItem('install_dismissed');
-            if (dismissed && Date.now() < parseInt(dismissed)) {
-                return;
-            }
-            
-            // Create install banner
-            const installBanner = document.createElement('div');
-            installBanner.className = 'fixed bottom-20 left-4 right-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-xl shadow-2xl z-50';
-            installBanner.style.animation = 'slideUp 0.3s ease-out';
-            installBanner.innerHTML = `
-                <div class="flex items-center justify-between gap-3">
-                    <div class="flex-1">
-                        <div class="font-bold mb-1">📱 نصب برنامه</div>
-                        <div class="text-xs opacity-90">برای دسترسی آسان‌تر، برنامه را نصب کنید</div>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="dismissInstall()" class="touch-btn bg-white bg-opacity-20 px-3 py-2 rounded-lg text-xs font-bold">
-                            بعداً
-                        </button>
-                        <button onclick="installApp()" class="touch-btn bg-white text-blue-600 px-4 py-2 rounded-lg text-xs font-bold">
-                            نصب
-                        </button>
-                    </div>
+                <div style="text-align:center;">
+                  <div style="font-size:20px; font-weight:900; color:var(--green);">${wr}%</div>
+                  <div style="font-size:10px; color:var(--text-muted);">win rate</div>
                 </div>
+              </div>
             `;
-            installBanner.id = 'install-banner';
-            document.body.appendChild(installBanner);
-        }
+          }).join('')}
+        </div>
+      </div>
 
-        window.installApp = async function() {
-            if (!deferredPrompt) return;
-            
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            
-            if (outcome === 'accepted') {
-                console.log('✅ User accepted install');
-                showNotification("✅ برنامه در حال نصب است...", "success");
-            }
-            
-            deferredPrompt = null;
-            const banner = document.getElementById('install-banner');
-            if (banner) banner.remove();
-        };
+      <!-- Best Pairs -->
+      <div class="card" style="padding:14px; margin-bottom:12px;">
+        <h3 style="font-weight:800; margin:0 0 12px; font-size:15px;">${t('bestPairs')}</h3>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          ${sortedPartnerships.slice(0,5).map(([pair,stats,wr],idx) => `
+            <div class="card-surface" style="padding:10px 12px; display:flex; align-items:center; gap:10px;">
+              <div style="font-size:14px; font-weight:900; color:var(--gold); min-width:24px;">#${idx+1}</div>
+              <div style="flex:1;">
+                <div style="font-weight:700; font-size:13px;">${pair}</div>
+                <div style="font-size:11px; color:var(--text-muted);">${stats.games} ${t('gamesLbl')} · ${stats.wins}W-${stats.losses}L</div>
+              </div>
+              <div style="font-size:20px; font-weight:900; color:var(--green);">${(wr*100).toFixed(0)}%</div>
+            </div>
+          `).join('') || `<div style="color:var(--text-muted); font-size:13px; text-align:center; padding:12px;">${t('minGames3')}</div>`}
+        </div>
+      </div>
 
-        window.dismissInstall = function() {
-            const banner = document.getElementById('install-banner');
-            if (banner) banner.remove();
-            
-            // Don't show again for 7 days
-            localStorage.setItem('install_dismissed', Date.now() + (7 * 24 * 60 * 60 * 1000));
-        };
+      <!-- Balanced teams -->
+      ${generateBalancedTeams(sorted)}
+    `;
 
-        // Detect if app is installed
-        window.addEventListener('appinstalled', () => {
-            console.log('✅ PWA installed!');
-            showNotification("✅ برنامه با موفقیت نصب شد!", "success");
-            deferredPrompt = null;
-        });
+    content.innerHTML = html;
+    // Store for profile use
+    window._lastPlayerStats = playerStats;
+    window._lastStreaks = streaks;
+    window._lastPartnerships = partnerships;
+    window._lastData = data;
+  }).catch(e => {
+    content.innerHTML = `<div style="color:var(--accent); padding:16px; border:1px solid rgba(233,69,96,.3); border-radius:10px; font-size:13px;">❌ ${e.message}</div>`;
+  });
+}
 
-        // Log if running as installed app
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            console.log('✅ Running as installed PWA');
-        }
+function generateBalancedTeams(sorted) {
+  const eligible = sorted.filter(([,ps]) => ps.games >= 3);
+  if (eligible.length < 4) return '';
+  const suggestions = [];
+  for (let i = 0; i+3 < eligible.length; i += 4) {
+    suggestions.push({ a: [eligible[i][0], eligible[i+3][0]], b: [eligible[i+1][0], eligible[i+2][0]] });
+  }
+  if (!suggestions.length && eligible.length >= 4) {
+    suggestions.push({ a:[eligible[0][0],eligible[3][0]], b:[eligible[1][0],eligible[2][0]] });
+  }
+  return `
+    <div class="card" style="padding:14px; margin-bottom:12px;">
+      <h3 style="font-weight:800; margin:0 0 6px; font-size:15px;">${t('balancedTeams')}</h3>
+      <p style="font-size:11px; color:var(--text-muted); margin:0 0 12px;">${t('balancedHint')}</p>
+      ${suggestions.slice(0,2).map(s => `
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:8px;">
+          <div class="card-surface" style="padding:10px; border-color:rgba(79,172,254,.3);">
+            <div style="font-size:11px; color:var(--blue-team); font-weight:700; margin-bottom:6px;">🔵 ${t('teamA')}</div>
+            ${s.a.map(p => `<div style="font-size:13px; font-weight:700; color:var(--blue-team);">${p}</div>`).join('')}
+          </div>
+          <div class="card-surface" style="padding:10px; border-color:rgba(247,112,98,.3);">
+            <div style="font-size:11px; color:var(--red-team); font-weight:700; margin-bottom:6px;">🔴 ${t('teamB')}</div>
+            ${s.b.map(p => `<div style="font-size:13px; font-weight:700; color:var(--red-team);">${p}</div>`).join('')}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
 
-        // ============================================
-        // iOS FIX: Ensure data loads correctly
-        // ============================================
-        // Force reload data when app becomes visible (iOS fix)
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden && window.matchMedia('(display-mode: standalone)').matches) {
-                console.log('App became visible - checking for updates');
-                // Optionally reload current tab data
-            }
-        });
-    </script>
+// ════════════════════════════════════════════════════════════
+// PLAYER PROFILE
+// ════════════════════════════════════════════════════════════
+function openProfile(name) {
+  const ps = window._lastPlayerStats?.[name];
+  const streaks = window._lastStreaks?.[name];
+  const partnerships = window._lastPartnerships || {};
+  const allData = window._lastData || [];
+  if (!ps) { showNotification(currentLang==='en'?'⚠️ Load stats first':'⚠️ ابتدا آمار را محاسبه کنید','warning'); return; }
+
+  document.getElementById('profile-name').textContent = name;
+
+  const wr = ((ps.wins/ps.games)*100).toFixed(1);
+  const avgWin  = ps.winScores.length  ? (ps.winScores.reduce((a,b)=>a+b,0)/ps.winScores.length).toFixed(0)   : '-';
+  const avgLoss = ps.lossScores.length ? (ps.lossScores.reduce((a,b)=>a+b,0)/ps.lossScores.length).toFixed(0) : '-';
+  const bestWin  = ps.winScores.length  ? Math.max(...ps.winScores)  : '-';
+  const worstLoss= ps.lossScores.length ? Math.min(...ps.lossScores) : '-';
+
+  // Partnerships for this player
+  const myPairs = Object.entries(partnerships)
+    .filter(([k]) => k.includes(name) && partnerships[k].games >= 2)
+    .map(([k,v]) => ({ pair: k.replace(name,'').replace('&','').trim(), games:v.games, wins:v.wins, wr: v.wins/v.games }))
+    .sort((a,b) => b.wr-a.wr);
+  const bestPartner  = myPairs[0];
+  const worstPartner = myPairs[myPairs.length-1];
+
+  // Head to head
+  const h2h = {};
+  allData.forEach(match => {
+    const inA = match.teamA.players.split(',').map(p=>p.trim()).includes(name);
+    const inB = match.teamB.players.split(',').map(p=>p.trim()).includes(name);
+    if (!inA && !inB) return;
+    const myTeam = inA ? match.teamA : match.teamB;
+    const oppTeam = inA ? match.teamB : match.teamA;
+    const iWon = match.winner && myTeam.players.split(',').some(p => match.winner.includes(p.trim()));
+    oppTeam.players.split(',').map(p=>p.trim()).filter(p=>p&&p!==name).forEach(opp => {
+      if (!h2h[opp]) h2h[opp] = {wins:0,losses:0,games:0};
+      if (iWon) h2h[opp].wins++; else h2h[opp].losses++;
+      h2h[opp].games++;
+    });
+  });
+  const sortedH2H = Object.entries(h2h).sort((a,b)=>b[1].games-a[1].games);
+  const nemesis = sortedH2H.filter(([,v])=>v.losses>v.wins).sort((a,b)=>(b[1].losses-b[1].wins)-(a[1].losses-a[1].wins))[0];
+  const victim  = sortedH2H.filter(([,v])=>v.wins>v.losses).sort((a,b)=>(b[1].wins-b[1].losses)-(a[1].wins-a[1].losses))[0];
+
+  // Badges
+  const badges = [];
+  if (streaks?.max >= 5) badges.push({ label: t('badgeSerial'), color: 'rgba(233,69,96,.15)', text: 'var(--accent)' });
+  if (ps.games >= 10 && parseFloat(wr) >= 60) badges.push({ label: t('badgeConsistent'), color: 'rgba(0,217,163,.15)', text: 'var(--green)' });
+  if (ps.allGames.some(g => g.win && (g.score - g.oppScore) >= 100)) badges.push({ label: t('badgeDominant'), color: 'rgba(79,172,254,.15)', text: 'var(--blue-team)' });
+  if (ps.games <= 3) badges.push({ label: t('badgeRookie'), color: 'rgba(245,166,35,.15)', text: 'var(--gold)' });
+  if (ps.nightGames >= 5) badges.push({ label: t('badgeNightOwl'), color: 'rgba(147,112,219,.15)', text: '#b39ddb' });
+  if (myPairs.some(p => p.games >= 10)) badges.push({ label: t('badgeLoyal'), color: 'rgba(0,217,163,.15)', text: 'var(--green)' });
+  // Comeback badge: check if player has won after being 150+ behind (use history arrays)
+  const hasComeback = allData.some(match => {
+    const inA = match.teamA.players.split(',').map(p=>p.trim()).includes(name);
+    const inB = match.teamB.players.split(',').map(p=>p.trim()).includes(name);
+    if (!inA && !inB) return false;
+    const myTeam = inA ? match.teamA : match.teamB;
+    const iWon = match.winner && myTeam.players.split(',').some(p => match.winner.includes(p.trim()));
+    if (!iWon) return false;
+    const oppTeam = inA ? match.teamB : match.teamA;
+    return (oppTeam.score - myTeam.score) >= -150 && myTeam.score > oppTeam.score;
+  });
+  if (hasComeback) badges.push({ label: t('badgeComeback'), color: 'rgba(245,166,35,.15)', text: 'var(--gold)' });
+
+  // First game & most games in one day
+  const firstGame = ps.recentGames.length ? ps.recentGames[0].date : '-';
+  const dayCount = {};
+  ps.recentGames.forEach(g => { dayCount[g.date] = (dayCount[g.date]||0)+1; });
+  const mostInDay = Math.max(...Object.values(dayCount), 0);
+
+  // Form guide last 10
+  const formHTML = ps.recentGames.slice(-10).map(g =>
+    `<div style="text-align:center;"><div class="form-dot ${g.win?'w':'l'}">${g.score}</div><div style="font-size:9px; color:var(--text-muted); margin-top:2px;">${g.win?'W':'L'}</div></div>`
+  ).join('');
+
+  document.getElementById('profile-content').innerHTML = `
+    <!-- Header stats -->
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px;">
+      <div class="stat-box"><div class="stat-num" style="color:var(--text-main);">${ps.games}</div><div class="stat-lbl">${t('totalGames')}</div></div>
+      <div class="stat-box"><div class="stat-num" style="color:var(--green);">${ps.wins}</div><div class="stat-lbl">${t('wins')}</div></div>
+      <div class="stat-box"><div class="stat-num" style="color:var(--accent);">${ps.losses}</div><div class="stat-lbl">${t('losses')}</div></div>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px;">
+      <div class="stat-box"><div class="stat-num" style="color:var(--gold);">${wr}%</div><div class="stat-lbl">${t('winRate')}</div></div>
+      <div class="stat-box"><div class="stat-num" style="color:var(--accent);">${streaks?.current||0} 🔥</div><div class="stat-lbl">${t('currentStreak')}</div></div>
+      <div class="stat-box"><div class="stat-num" style="color:var(--gold);">${streaks?.max||0}</div><div class="stat-lbl">${t('bestStreak')}</div></div>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px;">
+      <div class="stat-box"><div class="stat-num" style="color:var(--green); font-size:20px;">${bestWin}</div><div class="stat-lbl">${t('bestWinScore')}</div></div>
+      <div class="stat-box"><div class="stat-num" style="color:var(--accent); font-size:20px;">${worstLoss}</div><div class="stat-lbl">${t('worstLossScore')}</div></div>
+      <div class="stat-box"><div class="stat-num" style="color:var(--green); font-size:20px;">${avgWin}</div><div class="stat-lbl">${t('avgWinScore')}</div></div>
+      <div class="stat-box"><div class="stat-num" style="color:var(--accent); font-size:20px;">${avgLoss}</div><div class="stat-lbl">${t('avgLossScore')}</div></div>
+    </div>
+
+    <!-- Badges -->
+    ${badges.length ? `
+    <div class="card" style="padding:14px; margin-bottom:12px;">
+      <h3 style="font-weight:800; font-size:14px; margin:0 0 10px;">${t('badges')}</h3>
+      <div style="display:flex; flex-wrap:wrap; gap:8px;">
+        ${badges.map(b => `<span class="badge" style="background:${b.color}; color:${b.text}; border:1px solid ${b.text}40;">${b.label}</span>`).join('')}
+      </div>
+    </div>` : ''}
+
+    <!-- Form Guide -->
+    <div class="card" style="padding:14px; margin-bottom:12px;">
+      <h3 style="font-weight:800; font-size:14px; margin:0 0 10px;">${t('formGuide')}</h3>
+      <div style="display:flex; gap:6px; flex-wrap:wrap;">${formHTML || `<span style="color:var(--text-muted); font-size:12px;">${t('noData')}</span>`}</div>
+    </div>
+
+    <!-- Partnerships -->
+    <div class="card" style="padding:14px; margin-bottom:12px;">
+      <h3 style="font-weight:800; font-size:14px; margin:0 0 12px;">${t('partnerships')}</h3>
+      ${bestPartner ? `
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+          <div class="card-surface" style="padding:10px; border-color:rgba(0,217,163,.3);">
+            <div style="font-size:10px; color:var(--green); font-weight:700; margin-bottom:4px;">🏆 ${t('bestPartner')}</div>
+            <div style="font-weight:800; font-size:14px;">${bestPartner.pair}</div>
+            <div style="font-size:11px; color:var(--text-muted);">${bestPartner.games}G · ${(bestPartner.wr*100).toFixed(0)}%</div>
+          </div>
+          ${worstPartner && worstPartner.pair !== bestPartner.pair ? `
+          <div class="card-surface" style="padding:10px; border-color:rgba(233,69,96,.3);">
+            <div style="font-size:10px; color:var(--accent); font-weight:700; margin-bottom:4px;">📉 ${t('worstPartner')}</div>
+            <div style="font-weight:800; font-size:14px;">${worstPartner.pair}</div>
+            <div style="font-size:11px; color:var(--text-muted);">${worstPartner.games}G · ${(worstPartner.wr*100).toFixed(0)}%</div>
+          </div>` : '<div></div>'}
+        </div>
+      ` : `<div style="color:var(--text-muted); font-size:12px;">${t('noData')}</div>`}
+    </div>
+
+    <!-- Head to Head -->
+    <div class="card" style="padding:14px; margin-bottom:12px;">
+      <h3 style="font-weight:800; font-size:14px; margin:0 0 12px;">${t('headToHead')}</h3>
+      ${nemesis ? `
+        <div style="background:rgba(233,69,96,.08); border:1px solid rgba(233,69,96,.2); border-radius:10px; padding:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+          <div><div style="font-size:10px; color:var(--accent); font-weight:700;">😰 ${t('nemesis')}</div><div style="font-weight:800; font-size:14px;">${nemesis[0]}</div></div>
+          <div style="text-align:center;"><span style="color:var(--green); font-weight:700;">${nemesis[1].wins}</span><span style="color:var(--text-muted);"> - </span><span style="color:var(--accent); font-weight:700;">${nemesis[1].losses}</span></div>
+        </div>` : ''}
+      ${victim ? `
+        <div style="background:rgba(0,217,163,.08); border:1px solid rgba(0,217,163,.2); border-radius:10px; padding:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+          <div><div style="font-size:10px; color:var(--green); font-weight:700;">😈 ${t('favouriteVictim')}</div><div style="font-weight:800; font-size:14px;">${victim[0]}</div></div>
+          <div style="text-align:center;"><span style="color:var(--green); font-weight:700;">${victim[1].wins}</span><span style="color:var(--text-muted);"> - </span><span style="color:var(--accent); font-weight:700;">${victim[1].losses}</span></div>
+        </div>` : ''}
+      <div style="margin-top:10px; display:flex; flex-direction:column; gap:6px;">
+        ${sortedH2H.map(([opp,v]) => `
+          <div class="card-surface" style="padding:8px 12px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:700; font-size:13px;">${opp}</span>
+            <span style="font-size:13px;"><span style="color:var(--green); font-weight:700;">${v.wins}W</span> <span style="color:var(--text-muted);">-</span> <span style="color:var(--accent); font-weight:700;">${v.losses}L</span></span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- Milestones -->
+    <div class="card" style="padding:14px; margin-bottom:12px;">
+      <h3 style="font-weight:800; font-size:14px; margin:0 0 12px;">📅 ${currentLang==='en'?'Milestones':'مایلستون‌ها'}</h3>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <div class="stat-box"><div style="font-size:13px; font-weight:700; color:var(--gold);">${firstGame}</div><div class="stat-lbl">${t('firstGame')}</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:var(--accent);">${mostInDay}</div><div class="stat-lbl">${t('mostGamesDay')}</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:var(--blue-team);">${ps.nightGames}</div><div class="stat-lbl">🌙 Night Games</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:var(--green);">${myPairs.length}</div><div class="stat-lbl">👥 Partners</div></div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('profile-modal').style.display = 'block';
+}
+
+function closeProfile() { document.getElementById('profile-modal').style.display = 'none'; }
+
+// ════════════════════════════════════════════════════════════
+// SYNC & NOTIFICATIONS
+// ════════════════════════════════════════════════════════════
+function checkSyncStatus() {
+  if (localStorage.getItem('penak_pending_sync') === 'true')
+    document.getElementById('sync-status').style.display = 'block';
+}
+
+function retrySyncNow() {
+  showNotification(currentLang==='en'?'🔄 Retrying...':'🔄 در حال تلاش مجدد...','info');
+  fetchHistory(true).then(() => {
+    localStorage.removeItem('penak_pending_sync');
+    document.getElementById('sync-status').style.display = 'none';
+    showNotification(currentLang==='en'?'✅ Synced!':'✅ همگام‌سازی موفق!','success');
+  }).catch(() => showNotification(currentLang==='en'?'❌ Connection error':'❌ خطا در اتصال','error'));
+}
+
+let _notifTimer = null;
+function showNotification(msg, type='info') {
+  const existing = document.querySelector('.notif');
+  if (existing) existing.remove();
+  if (_notifTimer) clearTimeout(_notifTimer);
+  const colors = { success:'rgba(0,217,163,.9)', error:'rgba(233,69,96,.9)', warning:'rgba(245,166,35,.9)', info:'rgba(79,172,254,.9)' };
+  const n = document.createElement('div');
+  n.className = 'notif';
+  n.style.background = colors[type] || colors.info;
+  n.style.color = '#fff';
+  n.textContent = msg;
+  document.body.appendChild(n);
+  _notifTimer = setTimeout(() => {
+    n.style.animation = 'slideUp2 .3s ease-out forwards';
+    setTimeout(() => n.remove(), 300);
+  }, 2500);
+}
+
+// ════════════════════════════════════════════════════════════
+// BOOT
+// ════════════════════════════════════════════════════════════
+window.onload = function() {
+  applyLang();
+  // Try to restore session from localStorage
+  const saved = localStorage.getItem('penak_user');
+  if (saved) {
+    try {
+      currentUser = JSON.parse(saved);
+      // Re-verify token is still valid with a lightweight Firestore read
+      firestoreGet('config/main').then(() => {
+        enterApp();
+      }).catch(() => {
+        // Token expired — force re-login
+        currentUser = null;
+        localStorage.removeItem('penak_user');
+        document.getElementById('auth-page').style.display = 'flex';
+      });
+    } catch(e) {
+      document.getElementById('auth-page').style.display = 'flex';
+    }
+  } else {
+    document.getElementById('auth-page').style.display = 'flex';
+  }
+};
+
+// iOS fixes
+document.addEventListener('touchstart', function(){}, { passive: true });
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function(e) {
+  const now = Date.now();
+  if (now - lastTouchEnd <= 300) e.preventDefault();
+  lastTouchEnd = now;
+}, false);
+
+// PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  });
+}
+</script>
 </body>
 </html>
