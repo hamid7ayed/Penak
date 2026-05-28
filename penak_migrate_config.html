@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Penak — Config Migration</title>
+  <style>
+    body { font-family: monospace; background: #0f0f1a; color: #eaeaea; padding: 24px; max-width: 600px; margin: 0 auto; }
+    h1 { color: #e94560; }
+    .card { background: #1a1a2e; border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+    button { background: linear-gradient(135deg,#e94560,#c0392b); color: white; border: none; border-radius: 10px; padding: 14px 24px; font-size: 15px; font-weight: 700; cursor: pointer; width: 100%; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    #log { background: #000; border-radius: 8px; padding: 14px; font-size: 13px; line-height: 2; }
+    .ok  { color: #00d9a3; }
+    .err { color: #e94560; }
+    .inf { color: #f5a623; }
+    .chip { display: inline-block; background: rgba(79,172,254,.15); border: 1px solid rgba(79,172,254,.3); color: #4facfe; border-radius: 20px; padding: 4px 12px; font-size: 12px; margin: 3px; font-family: sans-serif; }
+    .chip-place { background: rgba(233,69,96,.15); border-color: rgba(233,69,96,.3); color: #f77062; }
+  </style>
+</head>
+<body>
+  <h1>🃏 Penak Config Migration</h1>
+  <p style="color:#8892a4; font-size:13px;">Saves 30 players and 8 locations to Firebase Firestore</p>
+
+  <div class="card">
+    <h3 style="margin-top:0; color:#4facfe;">👥 Players (30)</h3>
+    <div id="players-preview"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0; color:#f77062;">📍 Locations (8)</h3>
+    <div id="locations-preview"></div>
+  </div>
+
+  <div class="card">
+    <p style="color:#8892a4; font-size:13px; margin-top:0;">
+      Make sure Firestore rules are set to <code style="color:#00d9a3;">allow read, write: if true</code> before running.
+      Restore secure rules immediately after.
+    </p>
+    <button onclick="startMigration()" id="migrateBtn">🚀 Save Config to Firestore</button>
+  </div>
+
+  <div class="card">
+    <div id="log"><span class="inf">Ready to migrate config...</span></div>
+  </div>
+
+  <script>
+    const PROJECT_ID = "penak-7f61b";
+
+    const players = ["موسى","معروف","داكتر","شريف","دين محمد","سيد تواب","خالق","ابو عمر","شير","برهان","عمر","آصف","نجيب","ابو مراد","علي","شير خان","جاويد","احسان","حميدالله","فاروق","حاجی سلام","بجه ابو مراد","حاجي امين حائل","باجه امين حايل","محمد حائل","تغة رجب","فيصل خلطه شوايه","عزيز نعيرية","عبدالرحمن","حاجی عبدالرحمن"];
+
+    const locations = ["شباب٤","النعيريه","كورنيش جبيل","مقهى","شاطي الدمام","استراحة الجبيل","مطعم حي عروبه","مقهى عزیزیه"];
+
+    // Render previews
+    document.getElementById('players-preview').innerHTML = players.map(p => `<span class="chip">${p}</span>`).join('');
+    document.getElementById('locations-preview').innerHTML = locations.map(l => `<span class="chip chip-place">📍 ${l}</span>`).join('');
+
+    function log(msg, type='inf') {
+      const el = document.getElementById('log');
+      el.innerHTML += `<div class="${type}">${msg}</div>`;
+      el.scrollTop = el.scrollHeight;
+    }
+
+    function toFS(obj) {
+      const fields = {};
+      for (const [k, v] of Object.entries(obj)) {
+        if (typeof v === 'number') fields[k] = { doubleValue: v };
+        else if (typeof v === 'string') fields[k] = { stringValue: v };
+        else if (Array.isArray(v)) fields[k] = { arrayValue: { values: v.map(i => ({ stringValue: i })) } };
+      }
+      return fields;
+    }
+
+    async function startMigration() {
+      const btn = document.getElementById('migrateBtn');
+      btn.disabled = true;
+      document.getElementById('log').innerHTML = '';
+
+      const data = {
+        players,
+        locations,
+        lastSync: Date.now()
+      };
+
+      log('Saving players and locations to Firestore...', 'inf');
+
+      try {
+        const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/config/main`;
+        const r = await fetch(url, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fields: toFS(data) })
+        });
+
+        if (!r.ok) {
+          const e = await r.json();
+          throw new Error(e.error?.message || 'Unknown error');
+        }
+
+        log(`✓ Saved ${players.length} players`, 'ok');
+        log(`✓ Saved ${locations.length} locations`, 'ok');
+        log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'inf');
+        log('✅ Config migration complete!', 'ok');
+        log('Now restore your Firestore rules to: allow read, write: if request.auth != null', 'inf');
+        btn.textContent = '✅ Done!';
+
+      } catch(e) {
+        log(`✗ Failed: ${e.message}`, 'err');
+        if (e.message.includes('PERMISSION_DENIED')) {
+          log('🛑 Set Firestore rules to: allow read, write: if true — then try again', 'err');
+        }
+        btn.disabled = false;
+        btn.textContent = '🔄 Retry';
+      }
+    }
+  </script>
+</body>
+</html>
