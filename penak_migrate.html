@@ -82,10 +82,12 @@ const gamesData = [{"timestamp": 1769727444000, "date": "2026/01/29", "time": "2
     }
 
     async function addGame(projectId, idToken, game) {
-      const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/games`;
+      // Clean token — remove any quotes, spaces, newlines
+      const cleanToken = idToken.replace(/[^A-Za-z0-9._\-]/g, '');
+      const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/games?access_token=${cleanToken}`;
       const r = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${idToken}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fields: toFS(game) })
       });
       if (!r.ok) {
