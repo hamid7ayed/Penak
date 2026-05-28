@@ -97,15 +97,18 @@
       min-height: 100vh;
       overscroll-behavior: none;
       -webkit-overflow-scrolling: touch;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      margin: 0; padding: 0;
     }
 
-    /* Center layout on desktop, full-width on mobile */
-    #auth-page, #app {
-      width: 100%;
+    /* Centered wrapper for desktop */
+    #app-wrapper {
       max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
     /* ── SCROLLBAR ── */
@@ -184,6 +187,7 @@
       background: var(--bg-card);
       border-top: 1px solid var(--border);
       position: sticky; bottom: 0; z-index: 20;
+      flex-shrink: 0;
     }
     .tab-btn {
       color: var(--text-muted); transition: all .2s;
@@ -231,16 +235,20 @@
 
     /* ── BOTTOM SHEET ── */
     .bottom-sheet {
-      position: fixed; bottom: 0; left: 0; right: 0;
+      position: fixed; bottom: 0;
+      left: 50%; transform: translateX(-50%) translateY(100%);
+      width: 100%; max-width: 480px;
       background: var(--bg-card);
       border-radius: 24px 24px 0 0;
       border-top: 1px solid var(--border);
       z-index: 200;
-      transform: translateY(100%);
       transition: transform .3s cubic-bezier(.4,0,.2,1);
       max-height: 85vh; overflow-y: auto;
     }
-    .bottom-sheet.open { transform: translateY(0); }
+    .bottom-sheet.open {
+      transform: translateX(-50%) translateY(0) !important;
+    }
+    /* .bottom-sheet.open handled above */
 
     .overlay {
       position: fixed; inset: 0;
@@ -334,14 +342,18 @@
 
     /* ── HEADER ── */
     .app-header {
-      background: linear-gradient(180deg, #0f0f1a 0%, transparent 100%);
+      background: linear-gradient(180deg, var(--bg-deep) 0%, transparent 100%);
       position: sticky; top: 0; z-index: 10;
       padding: 16px 16px 8px;
+      width: 100%;
+      flex-shrink: 0;
     }
 
     /* ── AUTH PAGE ── */
     #auth-page {
       min-height: 100vh;
+      max-width: 480px;
+      margin: 0 auto;
       background: radial-gradient(ellipse at top, #1a0a2e 0%, var(--bg-deep) 60%);
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
@@ -480,7 +492,8 @@
 <!-- ═══════════════════════════════════════════════
      MAIN APP
 ═══════════════════════════════════════════════ -->
-<div id="app" style="display:none; width:100%; min-height:100vh; flex-direction:column;">
+<div id="app" style="display:none; width:100%; background:var(--bg-deep);">
+<div id="app-wrapper">
 
   <!-- Header -->
   <div class="app-header">
@@ -505,10 +518,10 @@
   </div>
 
   <!-- Tab Views -->
-  <div style="flex:1; overflow:hidden; display:flex; flex-direction:column;">
+  <div style="flex:1; overflow:hidden; display:flex; flex-direction:column; width:100%;">
 
     <!-- ── TAB: GAME ── -->
-    <div id="view-game" style="flex:1; overflow-y:auto; display:flex; flex-direction:column;">
+    <div id="view-game" style="flex:1; overflow-y:auto; overflow-x:hidden; display:flex; flex-direction:column; width:100%;">
 
       <!-- SETUP PANEL -->
       <div id="setup-panel" style="padding:16px; padding-bottom:80px;">
@@ -667,11 +680,8 @@
     </div>
 
     <!-- ── TAB: STATS ── -->
-    <div id="view-stats" style="display:none; flex:1; overflow-y:auto; padding:16px; padding-bottom:80px;">
-      <div style="text-align:center; margin-bottom:20px;">
-        <h2 style="font-size:22px; font-weight:900; margin:0 0 4px;" data-i18n="stats">آمار بازیکنان</h2>
-        <p style="color:var(--text-muted); font-size:12px; margin:0;" data-i18n="statsSubtitle">عملکرد و رکوردها</p>
-      </div>
+    <div id="view-stats" style="display:none; flex:1; overflow-y:auto; overflow-x:hidden; width:100%; box-sizing:border-box; padding:16px; padding-bottom:80px;">
+
       <div id="stats-content">
         <div style="text-align:center; padding:40px 0;">
           <div style="font-size:48px; margin-bottom:16px;">📊</div>
@@ -681,12 +691,12 @@
     </div>
 
     <!-- ── TAB: HISTORY ── -->
-    <div id="view-history" style="display:none; flex:1; overflow-y:auto; padding:16px; padding-bottom:80px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; position:sticky; top:0; background:var(--bg-deep); padding:8px 0; z-index:5;">
+    <div id="view-history" style="display:none; flex:1; overflow-y:auto; overflow-x:hidden; width:100%; box-sizing:border-box; align-self:stretch;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:16px 16px 0; background:var(--bg-deep);">
         <h2 style="font-size:22px; font-weight:900; margin:0;" data-i18n="history">تاریخچه</h2>
         <button onclick="loadHistory(true)" style="background:rgba(233,69,96,.1); border:1px solid rgba(233,69,96,.3); color:var(--accent); border-radius:10px; padding:8px 14px; font-size:14px; font-weight:700;">🔄</button>
       </div>
-      <div id="history-list">
+      <div id="history-list" style="padding:0 16px 80px; width:100%; box-sizing:border-box; display:flex; flex-direction:column;">
         <div style="text-align:center; padding:40px 0; color:var(--text-muted);">
           <div style="font-size:48px; margin-bottom:12px;">📜</div>
           <p style="font-size:13px;" data-i18n="tapToLoad">کلیک کنید تا بارگذاری شود</p>
@@ -697,7 +707,7 @@
   </div>
 
   <!-- Tab Bar -->
-  <div class="tab-bar" style="display:flex;">
+  <div class="tab-bar" style="display:flex; width:100%;">
     <button class="tab-btn active" onclick="switchTab('game')" id="tab-game">
       <span class="tab-icon">📝</span>
       <span data-i18n="tabGame">بازی</span>
@@ -711,7 +721,8 @@
       <span data-i18n="tabHistory">تاریخچه</span>
     </button>
   </div>
-</div>
+</div><!-- end app-wrapper -->
+</div><!-- end app -->
 
 <!-- Overlay -->
 <div id="overlay" class="overlay" onclick="closeBottomSheet()"></div>
@@ -1036,6 +1047,7 @@ function doLogout() {
   localStorage.removeItem('penak_user');
   closeBottomSheet();
   document.getElementById('app').style.display = 'none';
+  document.getElementById('app-wrapper').style.display = 'none';
   document.getElementById('auth-page').style.display = 'flex';
   showLogin();
 }
@@ -1055,7 +1067,8 @@ function showLogin() {
 
 function enterApp() {
   document.getElementById('auth-page').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('app-wrapper').style.display = 'flex';
   document.getElementById('header-username').textContent = currentUser.displayName;
   document.getElementById('recorder-name').textContent = currentUser.displayName;
   document.getElementById('recorder-phone').textContent = currentUser.phone;
@@ -1378,7 +1391,8 @@ function switchTab(tab) {
     document.getElementById(`view-${t}`).style.display = 'none';
   });
   document.getElementById(`tab-${tab}`).classList.add('active');
-  document.getElementById(`view-${tab}`).style.display = 'flex';
+  // game tab uses flex column, stats and history use block scroll
+  document.getElementById(`view-${tab}`).style.display = tab === 'game' ? 'flex' : 'block';
   if (tab === 'stats') calculateStats();
   if (tab === 'history') loadHistory();
 }
@@ -1700,7 +1714,7 @@ function loadHistory(force = false) {
       const isAWinner = match.winner && match.teamA.players.split(',').some(p => match.winner.includes(p.trim()));
       const card = document.createElement('div');
       card.className = 'card fade-up';
-      card.style.cssText = `padding:14px; margin-bottom:12px; animation-delay:${idx*0.04}s;`;
+      card.style.cssText = `padding:14px; margin-bottom:12px; animation-delay:${idx*0.04}s; width:100%; box-sizing:border-box; flex-shrink:0;`;
       card.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:10px;">
           <div style="font-size:11px; color:var(--text-muted);">
