@@ -186,8 +186,11 @@
     .tab-bar {
       background: var(--bg-card);
       border-top: 1px solid var(--border);
-      position: sticky; bottom: 0; z-index: 20;
-      flex-shrink: 0;
+      position: fixed; bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 100%; max-width: 480px;
+      z-index: 20;
+      display: flex;
     }
     .tab-btn {
       color: var(--text-muted); transition: all .2s;
@@ -455,6 +458,10 @@
     <button onclick="doLogin()" class="btn-primary" style="width:100%; margin-bottom:12px;" data-i18n="login">ورود</button>
     <button onclick="showRegister()" class="btn-ghost" style="width:100%;" data-i18n="goRegister">حساب ندارید؟ ثبت‌نام کنید</button>
     <div id="login-err" style="color:var(--accent); font-size:12px; text-align:center; margin-top:10px; display:none;"></div>
+    <div id="resend-verify-wrap" style="display:none; margin-top:12px; text-align:center;">
+      <button onclick="resendVerification()" style="background:rgba(245,166,35,.15); border:1px solid rgba(245,166,35,.3); color:var(--gold); border-radius:10px; padding:10px 20px; font-size:13px; font-weight:700; width:100%;" data-i18n="resendEmail">📧 ارسال مجدد ایمیل تأیید</button>
+      <div id="resend-msg" style="font-size:11px; color:var(--green); margin-top:6px; display:none;"></div>
+    </div>
   </div>
 
   <!-- Register Form -->
@@ -524,7 +531,7 @@
     <div id="view-game" style="flex:1; overflow-y:auto; overflow-x:hidden; display:flex; flex-direction:column; width:100%;">
 
       <!-- SETUP PANEL -->
-      <div id="setup-panel" style="padding:16px; padding-bottom:80px;">
+      <div id="setup-panel" style="padding:16px; padding-bottom:74px;">
 
         <!-- Recorded by bar -->
         <div class="record-bar" style="margin-bottom:16px; display:flex; align-items:center; gap:8px;">
@@ -590,9 +597,12 @@
       <div id="game-panel" style="display:none; flex:1; flex-direction:column;">
 
         <!-- Info bar -->
-        <div style="padding:8px 16px; background:var(--bg-card); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted);">
+        <div style="padding:8px 16px; background:var(--bg-card); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-size:12px; color:var(--text-muted);">
           <span id="display-date"></span>
-          <span id="display-place"></span>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span id="display-place"></span>
+            <span id="conn-indicator" style="font-size:10px;">🟢</span>
+          </div>
         </div>
 
         <!-- Status bar -->
@@ -672,7 +682,7 @@
         </div>
 
         <!-- Game Controls -->
-        <div style="padding:12px 16px; background:var(--bg-card); border-top:1px solid var(--border); display:flex; gap:10px; padding-bottom:20px;">
+        <div style="padding:12px 16px; background:var(--bg-card); border-top:1px solid var(--border); display:flex; gap:10px; padding-bottom:16px;">
           <button onclick="resetGame()" class="btn-ghost" style="flex:1;" data-i18n="cancelGame">🔄 لغو</button>
           <button id="finish-btn" onclick="finishGame()" class="btn-primary" style="flex:2; display:none;" data-i18n="saveGame">💾 ذخیره</button>
         </div>
@@ -680,7 +690,7 @@
     </div>
 
     <!-- ── TAB: STATS ── -->
-    <div id="view-stats" style="display:none; flex:1; overflow-y:auto; overflow-x:hidden; width:100%; box-sizing:border-box; padding:16px; padding-bottom:80px;">
+    <div id="view-stats" style="display:none; flex:1; overflow-y:auto; overflow-x:hidden; width:100%; box-sizing:border-box; padding:16px; padding-bottom:74px;">
 
       <div id="stats-content">
         <div style="text-align:center; padding:40px 0;">
@@ -696,7 +706,7 @@
         <h2 style="font-size:22px; font-weight:900; margin:0;" data-i18n="history">تاریخچه</h2>
         <button onclick="loadHistory(true)" style="background:rgba(233,69,96,.1); border:1px solid rgba(233,69,96,.3); color:var(--accent); border-radius:10px; padding:8px 14px; font-size:14px; font-weight:700;">🔄</button>
       </div>
-      <div id="history-list" style="padding:0 16px 80px; width:100%; box-sizing:border-box; display:flex; flex-direction:column;">
+      <div id="history-list" style="padding:0 16px 74px; width:100%; box-sizing:border-box;">
         <div style="text-align:center; padding:40px 0; color:var(--text-muted);">
           <div style="font-size:48px; margin-bottom:12px;">📜</div>
           <p style="font-size:13px;" data-i18n="tapToLoad">کلیک کنید تا بارگذاری شود</p>
@@ -706,23 +716,24 @@
 
   </div>
 
-  <!-- Tab Bar -->
-  <div class="tab-bar" style="display:flex; width:100%;">
-    <button class="tab-btn active" onclick="switchTab('game')" id="tab-game">
-      <span class="tab-icon">📝</span>
-      <span data-i18n="tabGame">بازی</span>
-    </button>
-    <button class="tab-btn" onclick="switchTab('stats')" id="tab-stats">
-      <span class="tab-icon">📊</span>
-      <span data-i18n="tabStats">آمار</span>
-    </button>
-    <button class="tab-btn" onclick="switchTab('history')" id="tab-history">
-      <span class="tab-icon">📜</span>
-      <span data-i18n="tabHistory">تاریخچه</span>
-    </button>
-  </div>
 </div><!-- end app-wrapper -->
 </div><!-- end app -->
+
+<!-- Tab Bar — fixed at bottom, always visible -->
+<div class="tab-bar" id="main-tab-bar" style="display:none;">
+  <button class="tab-btn active" onclick="switchTab('game')" id="tab-game">
+    <span class="tab-icon">📝</span>
+    <span data-i18n="tabGame">بازی</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('stats')" id="tab-stats">
+    <span class="tab-icon">📊</span>
+    <span data-i18n="tabStats">آمار</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('history')" id="tab-history">
+    <span class="tab-icon">📜</span>
+    <span data-i18n="tabHistory">تاریخچه</span>
+  </button>
+</div>
 
 <!-- Overlay -->
 <div id="overlay" class="overlay" onclick="closeBottomSheet()"></div>
@@ -835,6 +846,8 @@ const LANG = {
     headToHead:'رو در رو', nemesis:'کابوس', favouriteVictim:'قربانی مورد علاقه',
     badges:'🏅 نشان‌ها', firstGame:'اولین بازی', mostGamesDay:'بیشترین بازی در یک روز',
     // Badges
+    resendEmail:'📧 Resend Verification Email',
+    resendEmail:'📧 ارسال مجدد ایمیل تأیید',
     badgeSerial:'🔥 Serial Winner', badgeComeback:'👑 Comeback King',
     badgeDominant:'💪 Dominant', badgeConsistent:'🎯 Consistent',
     badgeRookie:'🆕 Rookie', badgeNightOwl:'🌙 Night Owl', badgeLoyal:'🤝 Loyal Partner',
@@ -879,6 +892,7 @@ const LANG = {
     bestPartner:'Best Partner', worstPartner:'Worst Partner',
     headToHead:'Head to Head', nemesis:'Nemesis', favouriteVictim:'Favourite Victim',
     badges:'🏅 Badges', firstGame:'First Game', mostGamesDay:'Most Games in One Day',
+    resendEmail:'📧 Resend Verification Email',
     badgeSerial:'🔥 Serial Winner', badgeComeback:'👑 Comeback King',
     badgeDominant:'💪 Dominant', badgeConsistent:'🎯 Consistent',
     badgeRookie:'🆕 Rookie', badgeNightOwl:'🌙 Night Owl', badgeLoyal:'🤝 Loyal Partner',
@@ -1018,7 +1032,11 @@ async function doLogin() {
       errEl.textContent = currentLang === 'en'
         ? 'Please verify your email first. Check your inbox.'
         : 'لطفاً ابتدا ایمیل خود را تأیید کنید.';
-      errEl.style.display = 'block'; return;
+      errEl.style.display = 'block';
+      // Store token temporarily for resend
+      window._unverifiedToken = data.idToken;
+      document.getElementById('resend-verify-wrap').style.display = 'block';
+      return;
     }
 
     // Load phone from Firestore
@@ -1042,12 +1060,31 @@ async function doLogin() {
   }
 }
 
+async function resendVerification() {
+  const btn = document.querySelector('#resend-verify-wrap button');
+  const msg = document.getElementById('resend-msg');
+  btn.disabled = true;
+  try {
+    const token = window._unverifiedToken;
+    if (!token) throw new Error('Please try logging in first');
+    await fbAuthReq('sendOobCode', { requestType: 'VERIFY_EMAIL', idToken: token });
+    msg.textContent = currentLang === 'en' ? '✅ Verification email sent! Check your inbox.' : '✅ ایمیل تأیید ارسال شد! صندوق ورودی را بررسی کنید.';
+    msg.style.display = 'block';
+  } catch(e) {
+    msg.textContent = e.message;
+    msg.style.color = 'var(--accent)';
+    msg.style.display = 'block';
+  }
+  setTimeout(() => { btn.disabled = false; }, 30000); // 30s cooldown
+}
+
 function doLogout() {
   currentUser = null;
   localStorage.removeItem('penak_user');
   closeBottomSheet();
   document.getElementById('app').style.display = 'none';
   document.getElementById('app-wrapper').style.display = 'none';
+  document.getElementById('main-tab-bar').style.display = 'none';
   document.getElementById('auth-page').style.display = 'flex';
   showLogin();
 }
@@ -1069,6 +1106,7 @@ function enterApp() {
   document.getElementById('auth-page').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   document.getElementById('app-wrapper').style.display = 'flex';
+  document.getElementById('main-tab-bar').style.display = 'flex';
   document.getElementById('header-username').textContent = currentUser.displayName;
   document.getElementById('recorder-name').textContent = currentUser.displayName;
   document.getElementById('recorder-phone').textContent = currentUser.phone;
@@ -1078,6 +1116,8 @@ function enterApp() {
   loadConfig();
   checkSyncStatus();
   applyLang();
+  startConnectionMonitor();
+  setTimeout(checkResumeGame, 800); // slight delay so UI is ready
 }
 
 function showUserMenu() {
@@ -1478,6 +1518,7 @@ function applyScore(team, val, isQuick) {
 
   updateLogs();
   updateRoundIndicator();
+  autoSaveGame(); // save state after every score
 
   // ── NEW WIN RULE: check only when both teams have equal hands ──
   if (gameState.teamA.handsPlayed === gameState.teamB.handsPlayed) {
@@ -1656,6 +1697,7 @@ async function saveGameNow() {
   try {
     await firestoreAdd('games', gameData);
     localStorage.removeItem('penak_pending_sync');
+    clearGameBackup();
     document.getElementById('sync-status').style.display = 'none';
     invalidateHistoryCache();
     showNotification(currentLang==='en'?'✅ Game saved!':'✅ بازی ذخیره شد!','success');
@@ -1679,6 +1721,7 @@ function goHome() {
 function resetGame(skipConfirm = false) {
   if (gameState.active && !skipConfirm && !confirm(currentLang==='en'?'Cancel game?':'لغو بازی؟')) return;
   gameState.active = false; gameState.target = 204;
+  clearGameBackup();
   gameState.teamA = { players:[], score:0, history:[], handsPlayed:0 };
   gameState.teamB = { players:[], score:0, history:[], handsPlayed:0 };
   gameState.winner = null; gameState.signA = '+'; gameState.signB = '+';
@@ -2135,6 +2178,91 @@ function showNotification(msg, type='info') {
     n.style.animation = 'slideUp2 .3s ease-out forwards';
     setTimeout(() => n.remove(), 300);
   }, 2500);
+}
+
+// ════════════════════════════════════════════════════════════
+// AUTO-SAVE & RESUME GAME
+// ════════════════════════════════════════════════════════════
+function autoSaveGame() {
+  if (!gameState.active) return;
+  localStorage.setItem('penak_game_backup', JSON.stringify({
+    gameState,
+    selectedPlayers,
+    savedAt: Date.now()
+  }));
+}
+
+function clearGameBackup() {
+  localStorage.removeItem('penak_game_backup');
+}
+
+function checkResumeGame() {
+  const saved = localStorage.getItem('penak_game_backup');
+  if (!saved) return;
+  try {
+    const backup = JSON.parse(saved);
+    const gs = backup.gameState;
+    if (!gs || !gs.active) { clearGameBackup(); return; }
+    const minutesAgo = Math.floor((Date.now() - backup.savedAt) / 60000);
+    const msg = currentLang === 'en'
+      ? `A game was interrupted ${minutesAgo} min ago (${gs.teamA.players.join(' & ')} vs ${gs.teamB.players.join(' & ')}). Resume?`
+      : `یک بازی ${minutesAgo} دقیقه پیش قطع شد (${gs.teamA.players.join(' & ')} در مقابل ${gs.teamB.players.join(' & ')}). ادامه می‌دهید؟`;
+    if (confirm(msg)) {
+      resumeGame(backup);
+    } else {
+      clearGameBackup();
+    }
+  } catch(e) { clearGameBackup(); }
+}
+
+function resumeGame(backup) {
+  gameState = backup.gameState;
+  selectedPlayers = backup.selectedPlayers;
+
+  document.getElementById('setup-panel').style.display = 'none';
+  document.getElementById('game-panel').style.display  = 'flex';
+  document.getElementById('game-panel').style.flexDirection = 'column';
+
+  document.getElementById('display-date').textContent  = gameState.date + ' ' + gameState.time;
+  document.getElementById('display-place').textContent = '📍 ' + gameState.place;
+  document.getElementById('disp-nameA').textContent = gameState.teamA.players.join(', ');
+  document.getElementById('disp-nameB').textContent = gameState.teamB.players.join(', ');
+  document.getElementById('scoreA').textContent = gameState.teamA.score;
+  document.getElementById('scoreB').textContent = gameState.teamB.score;
+
+  updateLogs();
+  updateRoundIndicator();
+
+  // Restore status bar
+  const statusBar = document.getElementById('status-bar');
+  if (gameState.winner) {
+    statusBar.className = 'status-win';
+    statusBar.innerHTML = `🏆 ${currentLang==='en'?'Winner':'برنده'}`;
+    document.getElementById('finish-btn').style.display = 'block';
+  } else {
+    const cls = gameState.target === 408 ? 'status-408' : gameState.target === 306 ? 'status-306' : 'status-normal';
+    statusBar.className = cls;
+    statusBar.innerHTML = `🎯 ${t('target')}: ${gameState.target}`;
+  }
+
+  showNotification(currentLang==='en'?'✅ Game resumed':'✅ بازی ادامه یافت','success');
+}
+
+// ════════════════════════════════════════════════════════════
+// CONNECTION MONITOR
+// ════════════════════════════════════════════════════════════
+function startConnectionMonitor() {
+  function update() {
+    const el = document.getElementById('conn-indicator');
+    if (!el) return;
+    el.textContent = navigator.onLine ? '🟢' : '🔴';
+    if (!navigator.onLine) {
+      showNotification(currentLang==='en'?'📵 Offline — scores still saving locally':'📵 آفلاین — امتیازها محلی ذخیره می‌شوند','warning');
+    }
+  }
+  window.addEventListener('online',  update);
+  window.addEventListener('offline', update);
+  update();
 }
 
 // ════════════════════════════════════════════════════════════
