@@ -2004,10 +2004,10 @@ function calculateStats() {
     // Sorted players by ranking score — Bayesian average
     // Formula: (wins + K) / (games + 2K) where K = confidence factor (10)
     // This pulls low-game players toward 50% win rate until they have enough games
-    const K = 10; // confidence factor — higher = more games needed to rank high
+    const K = 20; // confidence factor — needs ~20+ games before win rate is trusted
     const sorted = Object.entries(playerStats).map(([name, ps]) => {
       const bayesian = (ps.wins + K * 0.5) / (ps.games + K);
-      // Bonus for experience — players with more games get a small boost
+      // Small experience bonus — rewards players with more games
       const expBonus = Math.min(ps.games / 200, 0.05);
       return [name, ps, bayesian + expBonus];
     }).sort((a,b) => b[2]!==a[2] ? b[2]-a[2] : b[1].games-a[1].games);
