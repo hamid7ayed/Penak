@@ -456,7 +456,8 @@
       <input type="password" id="login-pass" class="input-dark" placeholder="••••••••" autocomplete="current-password">
     </div>
     <button onclick="doLogin()" class="btn-primary" style="width:100%; margin-bottom:12px;" data-i18n="login">ورود</button>
-    <button onclick="showRegister()" class="btn-ghost" style="width:100%;" data-i18n="goRegister">حساب ندارید؟ ثبت‌نام کنید</button>
+    <button onclick="showRegister()" class="btn-ghost" style="width:100%; margin-bottom:10px;" data-i18n="goRegister">حساب ندارید؟ ثبت‌نام کنید</button>
+    <button onclick="showForgotPassword()" style="background:transparent; border:none; color:var(--text-muted); font-size:12px; font-family:inherit; width:100%; padding:4px;" data-i18n="forgotPass">فراموشی رمز عبور؟</button>
     <div id="login-err" style="color:var(--accent); font-size:12px; text-align:center; margin-top:10px; display:none;"></div>
     <div id="resend-verify-wrap" style="display:none; margin-top:12px; text-align:center;">
       <button onclick="resendVerification()" style="background:rgba(245,166,35,.15); border:1px solid rgba(245,166,35,.3); color:var(--gold); border-radius:10px; padding:10px 20px; font-size:13px; font-weight:700; width:100%;" data-i18n="resendEmail">📧 ارسال مجدد ایمیل تأیید</button>
@@ -485,6 +486,17 @@
     <button onclick="doRegister()" class="btn-primary" style="width:100%; margin-bottom:12px;" data-i18n="register">ثبت‌نام</button>
     <button onclick="showLogin()" class="btn-ghost" style="width:100%;" data-i18n="goLogin">قبلاً ثبت‌نام کرده‌اید؟ ورود</button>
     <div id="reg-err" style="color:var(--accent); font-size:12px; text-align:center; margin-top:10px; display:none;"></div>
+  </div>
+
+  <!-- Forgot Password Form -->
+  <div id="forgot-form" style="width:100%; max-width:360px; display:none; text-align:center;">
+    <div style="font-size:48px; margin-bottom:12px;">🔑</div>
+    <h3 style="font-weight:700; margin-bottom:8px;" data-i18n="forgotTitle">بازیابی رمز عبور</h3>
+    <p style="color:var(--text-muted); font-size:13px; margin-bottom:20px;" data-i18n="forgotMsg">ایمیل خود را وارد کنید تا لینک بازیابی ارسال شود.</p>
+    <input type="email" id="forgot-email" class="input-dark" placeholder="example@email.com" inputmode="email" style="margin-bottom:14px;">
+    <button onclick="doForgotPassword()" class="btn-primary" style="width:100%; margin-bottom:10px;" data-i18n="sendReset">ارسال لینک بازیابی</button>
+    <button onclick="showLogin()" class="btn-ghost" style="width:100%;" data-i18n="goLoginBtn">بازگشت به ورود</button>
+    <div id="forgot-msg" style="font-size:12px; margin-top:10px; display:none;"></div>
   </div>
 
   <!-- Verification Notice -->
@@ -698,6 +710,7 @@
           <button onclick="calculateStats()" class="btn-primary" data-i18n="calcStats">محاسبه آمار</button>
         </div>
       </div>
+      </div>
     </div>
 
     <!-- ── TAB: HISTORY ── -->
@@ -711,6 +724,29 @@
           <div style="font-size:48px; margin-bottom:12px;">📜</div>
           <p style="font-size:13px;" data-i18n="tapToLoad">کلیک کنید تا بارگذاری شود</p>
         </div>
+      </div>
+    </div>
+
+    <!-- ── TAB: ADMIN ── -->
+    <div id="view-admin" style="display:none; flex:1; overflow-y:auto; overflow-x:hidden; width:100%; box-sizing:border-box; padding:16px; padding-bottom:74px;">
+      <h2 style="font-size:20px; font-weight:900; margin:0 0 16px;" data-i18n="tabAdmin">⚙️ مدیریت</h2>
+
+      <!-- Manage Players -->
+      <div class="card" style="padding:16px; margin-bottom:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h3 style="font-weight:800; margin:0; font-size:15px;">👥 بازیکنان</h3>
+          <button onclick="openAddPlayer()" style="background:rgba(0,217,163,.1); border:1px solid rgba(0,217,163,.3); color:var(--green); border-radius:8px; padding:6px 12px; font-size:12px; font-weight:700;">+ افزودن</button>
+        </div>
+        <div id="admin-players-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+      </div>
+
+      <!-- Manage Locations -->
+      <div class="card" style="padding:16px; margin-bottom:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h3 style="font-weight:800; margin:0; font-size:15px;">📍 مکان‌ها</h3>
+          <button onclick="openAddLocation()" style="background:rgba(0,217,163,.1); border:1px solid rgba(0,217,163,.3); color:var(--green); border-radius:8px; padding:6px 12px; font-size:12px; font-weight:700;">+ افزودن</button>
+        </div>
+        <div id="admin-locations-list" style="display:flex; flex-direction:column; gap:6px;"></div>
       </div>
     </div>
 
@@ -733,6 +769,10 @@
     <span class="tab-icon">📜</span>
     <span data-i18n="tabHistory">تاریخچه</span>
   </button>
+  <button class="tab-btn" onclick="switchTab('admin')" id="tab-admin">
+    <span class="tab-icon">⚙️</span>
+    <span data-i18n="tabAdmin">مدیریت</span>
+  </button>
 </div>
 
 <!-- Overlay -->
@@ -747,6 +787,19 @@
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
       <button onclick="closeBottomSheet()" class="btn-ghost" data-i18n="cancel">لغو</button>
       <button onclick="saveNewPlayer()" class="btn-primary" data-i18n="save">ذخیره</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Sheet: Add Location -->
+<div id="add-location-sheet" class="bottom-sheet">
+  <div class="drag-handle"></div>
+  <div style="padding:20px;">
+    <h3 style="font-weight:800; margin-bottom:16px;">افزودن مکان جدید</h3>
+    <input type="text" id="new-location-name" class="input-dark" placeholder="نام مکان" style="margin-bottom:16px;">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <button onclick="closeBottomSheet()" class="btn-ghost">لغو</button>
+      <button onclick="saveNewLocation()" class="btn-primary">ذخیره</button>
     </div>
   </div>
 </div>
@@ -798,6 +851,8 @@ const FB = {
 
 const FIRESTORE = `https://firestore.googleapis.com/v1/projects/${FB.projectId}/databases/(default)/documents`;
 const AUTH_URL  = `https://identitytoolkit.googleapis.com/v1/accounts`;
+const ADMIN_UID = '2tbheYNldqSCJOVyKLQhGo0KXGz2'; // Only this user can delete games and access admin panel
+function isAdmin() { return currentUser?.uid === ADMIN_UID; }
 
 // ════════════════════════════════════════════════════════════
 // i18n — BILINGUAL (Dari / English)  — RTL kept always
@@ -819,7 +874,7 @@ const LANG = {
     waitingFor:'در انتظار', bothPlayed:'هر دو تیم بازی کردند',
     stats:'آمار بازیکنان', statsSubtitle:'عملکرد و رکوردها', calcStats:'محاسبه آمار',
     history:'تاریخچه', tapToLoad:'کلیک کنید تا بارگذاری شود',
-    tabGame:'بازی', tabStats:'آمار', tabHistory:'تاریخچه',
+    tabGame:'بازی', tabStats:'آمار', tabHistory:'تاریخچه', tabAdmin:'مدیریت',
     addPlayerTitle:'افزودن بازیکن جدید', playerNamePh:'نام بازیکن',
     cancel:'لغو', save:'ذخیره', logout:'🚪 خروج', back:'بازگشت',
     newPlacePh:'نام مکان جدید...',
@@ -847,7 +902,13 @@ const LANG = {
     badges:'🏅 نشان‌ها', firstGame:'اولین بازی', mostGamesDay:'بیشترین بازی در یک روز',
     // Badges
     resendEmail:'📧 Resend Verification Email',
+    forgotPass:'Forgot password?', forgotTitle:'Reset Password',
+    forgotMsg:'Enter your email to receive a reset link.',
+    sendReset:'Send Reset Link',
     resendEmail:'📧 ارسال مجدد ایمیل تأیید',
+    forgotPass:'فراموشی رمز عبور؟', forgotTitle:'بازیابی رمز عبور',
+    forgotMsg:'ایمیل خود را وارد کنید تا لینک بازیابی ارسال شود.',
+    sendReset:'ارسال لینک بازیابی',
     badgeSerial:'🔥 Serial Winner', badgeComeback:'👑 Comeback King',
     badgeDominant:'💪 Dominant', badgeConsistent:'🎯 Consistent',
     badgeRookie:'🆕 Rookie', badgeNightOwl:'🌙 Night Owl', badgeLoyal:'🤝 Loyal Partner',
@@ -868,7 +929,7 @@ const LANG = {
     waitingFor:'Waiting for', bothPlayed:'Both teams played',
     stats:'Player Stats', statsSubtitle:'Performance & Records', calcStats:'Calculate Stats',
     history:'History', tapToLoad:'Tap to load',
-    tabGame:'Game', tabStats:'Stats', tabHistory:'History',
+    tabGame:'Game', tabStats:'Stats', tabHistory:'History', tabAdmin:'Admin',
     addPlayerTitle:'Add New Player', playerNamePh:'Player name',
     cancel:'Cancel', save:'Save', logout:'🚪 Logout', back:'Back',
     newPlacePh:'New location name...',
@@ -893,6 +954,9 @@ const LANG = {
     headToHead:'Head to Head', nemesis:'Nemesis', favouriteVictim:'Favourite Victim',
     badges:'🏅 Badges', firstGame:'First Game', mostGamesDay:'Most Games in One Day',
     resendEmail:'📧 Resend Verification Email',
+    forgotPass:'Forgot password?', forgotTitle:'Reset Password',
+    forgotMsg:'Enter your email to receive a reset link.',
+    sendReset:'Send Reset Link',
     badgeSerial:'🔥 Serial Winner', badgeComeback:'👑 Comeback King',
     badgeDominant:'💪 Dominant', badgeConsistent:'🎯 Consistent',
     badgeRookie:'🆕 Rookie', badgeNightOwl:'🌙 Night Owl', badgeLoyal:'🤝 Loyal Partner',
@@ -1098,8 +1162,30 @@ function showRegister() {
 function showLogin() {
   document.getElementById('register-form').style.display = 'none';
   document.getElementById('verify-notice').style.display = 'none';
+  document.getElementById('forgot-form').style.display = 'none';
   document.getElementById('login-form').style.display = 'block';
   document.getElementById('auth-subtitle').textContent = t('authSubtitle');
+}
+
+function showForgotPassword() {
+  document.getElementById('login-form').style.display = 'none';
+  document.getElementById('forgot-form').style.display = 'block';
+  document.getElementById('auth-subtitle').textContent = t('forgotTitle');
+}
+
+async function doForgotPassword() {
+  const email = document.getElementById('forgot-email').value.trim();
+  const msg = document.getElementById('forgot-msg');
+  msg.style.display = 'none';
+  if (!email) { msg.textContent = currentLang==='en'?'Enter your email':'ایمیل را وارد کنید'; msg.style.color='var(--accent)'; msg.style.display='block'; return; }
+  try {
+    await fbAuthReq('sendOobCode', { requestType: 'PASSWORD_RESET', email });
+    msg.textContent = currentLang==='en'?'✅ Reset link sent! Check your inbox.':'✅ لینک بازیابی ارسال شد! صندوق ورودی را بررسی کنید.';
+    msg.style.color = 'var(--green)';
+    msg.style.display = 'block';
+  } catch(e) {
+    msg.textContent = e.message; msg.style.color='var(--accent)'; msg.style.display='block';
+  }
 }
 
 function enterApp() {
@@ -1107,6 +1193,9 @@ function enterApp() {
   document.getElementById('app').style.display = 'block';
   document.getElementById('app-wrapper').style.display = 'flex';
   document.getElementById('main-tab-bar').style.display = 'flex';
+  // Show admin tab only for admin user
+  const adminTab = document.getElementById('tab-admin');
+  if (adminTab) adminTab.style.display = isAdmin() ? 'flex' : 'none';
   document.getElementById('header-username').textContent = currentUser.displayName;
   document.getElementById('recorder-name').textContent = currentUser.displayName;
   document.getElementById('recorder-phone').textContent = currentUser.phone;
@@ -1426,15 +1515,20 @@ function saveNewPlayer() {
 // TAB SWITCHING
 // ════════════════════════════════════════════════════════════
 function switchTab(tab) {
-  ['game','stats','history'].forEach(t => {
-    document.getElementById(`tab-${t}`).classList.remove('active');
-    document.getElementById(`view-${t}`).style.display = 'none';
+  ['game','stats','history','admin'].forEach(t => {
+    const tb = document.getElementById(`tab-${t}`);
+    const vw = document.getElementById(`view-${t}`);
+    if (tb) tb.classList.remove('active');
+    if (vw) vw.style.display = 'none';
   });
   document.getElementById(`tab-${tab}`).classList.add('active');
-  // game tab uses flex column, stats and history use block scroll
   document.getElementById(`view-${tab}`).style.display = tab === 'game' ? 'flex' : 'block';
   if (tab === 'stats') calculateStats();
   if (tab === 'history') loadHistory();
+  if (tab === 'admin') {
+    if (!isAdmin()) { switchTab('game'); showNotification(currentLang==='en'?'⛔ Not authorized':'⛔ دسترسی ندارید','error'); return; }
+    renderAdminPlayers(); renderAdminLocations();
+  }
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1744,6 +1838,22 @@ function resetGame(skipConfirm = false) {
 // ════════════════════════════════════════════════════════════
 // HISTORY
 // ════════════════════════════════════════════════════════════
+async function deleteGame(gameId) {
+  if (!isAdmin()) { showNotification(currentLang==='en'?'⛔ Not authorized':'⛔ دسترسی ندارید','error'); return; }
+  const confirmMsg = currentLang === 'en'
+    ? 'Delete this game permanently?'
+    : 'این بازی را برای همیشه حذف کنید؟';
+  if (!confirm(confirmMsg)) return;
+  try {
+    await fsRequest('DELETE', `games/${gameId}`);
+    invalidateHistoryCache();
+    loadHistory(true);
+    showNotification(currentLang==='en'?'✅ Game deleted':'✅ بازی حذف شد', 'success');
+  } catch(e) {
+    showNotification(currentLang==='en'?'❌ Delete failed':'❌ حذف ناموفق', 'error');
+  }
+}
+
 function loadHistory(force = false) {
   const list = document.getElementById('history-list');
   list.innerHTML = `<div style="text-align:center; padding:40px 0; color:var(--text-muted);">⏳ ${currentLang==='en'?'Loading...':'در حال بارگذاری...'}</div>`;
@@ -1788,11 +1898,58 @@ function loadHistory(force = false) {
 // ════════════════════════════════════════════════════════════
 // STATS
 // ════════════════════════════════════════════════════════════
+let statFilter = { type: 'all', from: null, to: null };
+
+function setStatFilter(type) {
+  statFilter.type = type;
+  ['all','month','week','custom'].forEach(t => {
+    const btn = document.getElementById(`sf-${t}`);
+    if (btn) { btn.className = t === type ? 'btn-primary' : 'btn-ghost'; btn.style.cssText = 'flex:1; padding:8px; font-size:12px; min-width:60px;'; }
+  });
+  const customDiv = document.getElementById('custom-date-filter');
+  if (type === 'custom') { customDiv.style.display = 'block'; return; }
+  customDiv.style.display = 'none';
+  statFilter.from = null; statFilter.to = null;
+  calculateStats();
+}
+
+function applyCustomFilter() {
+  const from = document.getElementById('filter-from').value;
+  const to   = document.getElementById('filter-to').value;
+  if (!from || !to) { showNotification(currentLang==='en'?'⚠️ Select both dates':'⚠️ هر دو تاریخ را انتخاب کنید','warning'); return; }
+  statFilter.from = from; statFilter.to = to;
+  calculateStats();
+}
+
+function filterDataByDate(data) {
+  const now = new Date();
+  return data.filter(match => {
+    if (!match.date) return true;
+    const d = match.date.replace(/\//g,'-');
+    if (statFilter.type === 'week') {
+      const weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate()-7);
+      return new Date(d) >= weekAgo;
+    }
+    if (statFilter.type === 'month') {
+      const monthAgo = new Date(now); monthAgo.setMonth(monthAgo.getMonth()-1);
+      return new Date(d) >= monthAgo;
+    }
+    if (statFilter.type === 'custom' && statFilter.from && statFilter.to) {
+      const fd = new Date(statFilter.from); const td = new Date(statFilter.to);
+      td.setHours(23,59,59);
+      const md = new Date(d);
+      return md >= fd && md <= td;
+    }
+    return true;
+  });
+}
+
 function calculateStats() {
   const content = document.getElementById('stats-content');
   content.innerHTML = `<div style="text-align:center; padding:40px 0; color:var(--text-muted);">⏳ ${currentLang==='en'?'Calculating...':'محاسبه...'}</div>`;
 
-  fetchHistory().then(data => {
+  fetchHistory().then(rawData => {
+    const data = filterDataByDate(rawData);
     if (!data.length) {
       content.innerHTML = `<div style="text-align:center; padding:40px 0; color:var(--text-muted);"><div style="font-size:48px; margin-bottom:12px;">📊</div><p>${t('noData')}</p></div>`;
       return;
@@ -2182,6 +2339,70 @@ function showNotification(msg, type='info') {
     n.style.animation = 'slideUp2 .3s ease-out forwards';
     setTimeout(() => n.remove(), 300);
   }, 2500);
+}
+
+// ════════════════════════════════════════════════════════════
+// ADMIN PANEL
+// ════════════════════════════════════════════════════════════
+function renderAdminPlayers() {
+  const list = document.getElementById('admin-players-list');
+  if (!list) return;
+  list.innerHTML = savedPlayers.map((p, i) => `
+    <div class="card-surface" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px;">
+      <span style="font-weight:600; font-size:14px;">${p}</span>
+      <button onclick="deletePlayer(${i})" style="background:rgba(233,69,96,.1); border:1px solid rgba(233,69,96,.3); color:var(--accent); border-radius:8px; padding:4px 10px; font-size:12px; font-weight:700;">🗑️</button>
+    </div>
+  `).join('');
+}
+
+function renderAdminLocations() {
+  const list = document.getElementById('admin-locations-list');
+  if (!list) return;
+  list.innerHTML = savedPlaces.map((p, i) => `
+    <div class="card-surface" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px;">
+      <span style="font-weight:600; font-size:14px;">📍 ${p}</span>
+      <button onclick="deleteLocation(${i})" style="background:rgba(233,69,96,.1); border:1px solid rgba(233,69,96,.3); color:var(--accent); border-radius:8px; padding:4px 10px; font-size:12px; font-weight:700;">🗑️</button>
+    </div>
+  `).join('');
+}
+
+function deletePlayer(idx) {
+  if (!isAdmin()) { showNotification(currentLang==='en'?'⛔ Not authorized':'⛔ دسترسی ندارید','error'); return; }
+  if (!confirm(currentLang==='en'?`Delete ${savedPlayers[idx]}?`:`حذف ${savedPlayers[idx]}؟`)) return;
+  savedPlayers.splice(idx, 1);
+  syncConfig();
+  renderAdminPlayers();
+  renderSavedPlayers();
+  showNotification(currentLang==='en'?'✅ Player deleted':'✅ بازیکن حذف شد','success');
+}
+
+function deleteLocation(idx) {
+  if (!isAdmin()) { showNotification(currentLang==='en'?'⛔ Not authorized':'⛔ دسترسی ندارید','error'); return; }
+  if (!confirm(currentLang==='en'?`Delete ${savedPlaces[idx]}?`:`حذف ${savedPlaces[idx]}؟`)) return;
+  savedPlaces.splice(idx, 1);
+  syncConfig();
+  renderAdminLocations();
+  renderSavedPlaces();
+  showNotification(currentLang==='en'?'✅ Location deleted':'✅ مکان حذف شد','success');
+}
+
+function openAddLocation() {
+  document.getElementById('add-location-sheet').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('new-location-name').value = '';
+  setTimeout(() => document.getElementById('new-location-name').focus(), 300);
+}
+
+function saveNewLocation() {
+  const name = document.getElementById('new-location-name').value.trim();
+  if (!name) { showNotification(currentLang==='en'?'⚠️ Enter location name':'⚠️ لطفاً نام مکان را وارد کنید','warning'); return; }
+  if (savedPlaces.includes(name)) { showNotification(currentLang==='en'?'⚠️ Location already exists':'⚠️ این مکان قبلاً ثبت شده','warning'); return; }
+  savedPlaces.unshift(name);
+  syncConfig();
+  renderAdminLocations();
+  renderSavedPlaces();
+  closeBottomSheet();
+  showNotification(currentLang==='en'?'✅ Location added':'✅ مکان اضافه شد','success');
 }
 
 // ════════════════════════════════════════════════════════════
